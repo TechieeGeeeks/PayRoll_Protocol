@@ -9,13 +9,13 @@ import {
   ChevronDown,
   CoinsIcon,
   CopyIcon,
-  Home,
   LogOutIcon,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { createSmartAccountClient } from "@biconomy/account";
 import { ethers } from "ethers";
+import { getInstance } from "@/utils/fhevm";
 
 const Page = () => {
   const { authenticated, ready } = usePrivy();
@@ -23,6 +23,17 @@ const Page = () => {
   const w0 = wallets[0];
   const [signer, setSigner] = useState(null);
   const [smartAccount, setSmartAccount] = useState(null);
+  const [fhevmInstance, setFhevmInstance] = useState(null);
+  
+  const getFhevmInstance = async () => {
+    const instance = await getInstance();
+    setFhevmInstance(instance);
+  };
+
+  useEffect(() => {
+    getFhevmInstance();
+  }, []);
+
   const createSmartAccount = async (signer) => {
     if (!signer) return;
     const smartAccount = await createSmartAccountClient({
