@@ -18,12 +18,14 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <ShadcnThemeProvider>
           <PrivyWrapper>
-            <main className="grid place-items-center min-h-screen bg-main/15">
-              <div className="h-full w-full grid md:max-w-6xl px-6 md:px-12">
-                <LogginChecker>{children}</LogginChecker>
-              </div>
-            </main>
-            <Toaster />
+            {/* <Providers> */}
+              <main className="grid place-items-center min-h-screen bg-main/15">
+                <div className="h-full w-full grid md:max-w-6xl px-6 md:px-12">
+                  <LogginChecker>{children}</LogginChecker>
+                </div>
+              </main>
+              <Toaster />
+            {/* </Providers> */}
           </PrivyWrapper>
         </ShadcnThemeProvider>
       </body>

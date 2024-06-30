@@ -13,12 +13,41 @@ import {
   LogOutIcon,
 } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { createSmartAccountClient } from "@biconomy/account";
+import { ethers } from "ethers";
 
 const Page = () => {
-  const { authenticated } = usePrivy();
+  const { authenticated, ready } = usePrivy();
   const { wallets } = useWallets();
   const w0 = wallets[0];
+  const [signer, setSigner] = useState(null);
+  const [smartAccount, setSmartAccount] = useState(null);
+  const createSmartAccount = async (signer) => {
+    if (!signer) return;
+    const smartAccount = await createSmartAccountClient({
+      signer: signer,
+      bundlerUrl:
+        "https://bundler.biconomy.io/api/v2/84532/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44",
+      biconomyPaymasterApiKey:
+        "https://paymaster.biconomy.io/api/v1/84532/9TNSt35x8.d36efc58-f988-4c7a-b2ea-a4ca79c1ef95",
+      rpcUrl: "https://sepolia.base.org",
+    });
+    return smartAccount;
+  };
+
+  const getSigner = async () => {
+    const provider = await w0?.getEthersProvider();
+    const signer = await provider?.getSigner();
+    setSigner(signer);
+    const smartContractAccount = await createSmartAccount(signer);
+    setSmartAccount(smartContractAccount);
+  };
+  useEffect(() => {
+    if (ready && authenticated) {
+      setSigner(getSigner());
+    }
+  }, [w0]);
 
   const address = w0?.address;
 
@@ -33,6 +62,20 @@ const Page = () => {
       // description: "Address, copied to clipboard",
     });
   };
+  const sendEther = async () => {
+    const tx = {
+      to: "0x3199B1459117Dd7ceeE0b3dA0CE8e98Da30451b2", // Replace with the recipient address
+      value: ethers.utils.parseEther("0.001"), // 0.001 ETH
+    };
+
+    try {
+      const transaction = await signer.sendTransaction(tx);
+      console.log("Transaction:", transaction);
+    } catch (error) {
+      console.error("Transaction failed:", error);
+    }
+  };
+
   return (
     <div className="mt-10">
       <Header authenticated={authenticated} address={address} />
@@ -55,7 +98,7 @@ const Page = () => {
           </div>
         </div>
         <div className="flex items-center justify-end w-full">
-          <Button>Submit</Button>
+          <Button onClick={sendEther}>Submit</Button>
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ export const privyConfig = {
   config: {
     logo: "https://your.logo.url",
     appearance: { theme: "dark" },
-    loginMethods: ["wallet"],
+    loginMethods: ["email"],
     appearance: {
       walletList: ["metamask", "detected_wallets", "rainbow"],
       theme: "dark",
