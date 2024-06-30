@@ -4,7 +4,14 @@ import { toast } from "@/components/ui/use-toast";
 import { truncateAddress } from "@/utils/webHelpers";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import clsx from "clsx";
-import { BanknoteIcon, ChevronDown, CopyIcon, LogOutIcon } from "lucide-react";
+import {
+  BanknoteIcon,
+  ChevronDown,
+  CoinsIcon,
+  CopyIcon,
+  Home,
+  LogOutIcon,
+} from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -30,9 +37,9 @@ const Page = () => {
     <div className="mt-10">
       <Header authenticated={authenticated} address={address} />
       <div className="space-y-8 mt-10">
-        <div className="flex items-center justify-between">
+        <div className="">
           <p className="font-semibold text-xl">Deposit Address.</p>
-          <p>Tokens: 450</p>
+          <p>Available tokens: 450</p>
         </div>
 
         <div className="w-full border border-border bg-white rounded-base">
@@ -57,10 +64,10 @@ const Page = () => {
 
 export default Page;
 
-const Header = ({ authenticated, address }) => {
+export const Header = ({ authenticated, address }) => {
   return (
     <div className="mt-10 flex justify-between items-center scroll-m-20 border-b pb-4 text-3xl font-semibold tracking-tight transition-colors first:mt-0 my-4">
-      <div>Address</div>
+      <Link href={"/"}>Payroll</Link>
       <div className="text-xl text-black/70 md:hidden flex items-center justify-center">
         {/* {truncateAddress(address)} */}
         <DropDown authenticated={authenticated} address={address} />
@@ -123,7 +130,7 @@ const DropDown = ({ authenticated, address }) => {
           isOpen
             ? "visible top-12 opacity-100 right-1"
             : "invisible top-10 right-1 opacity-0",
-          "absolute flex w-[150px] flex-col rounded-base border-2 shadow-light border-black bg-white text-lg font-base transition-all"
+          "absolute flex w-[170px] flex-col rounded-base border-2 shadow-light border-black bg-white text-lg font-base transition-all"
         )}
       >
         {/* <div
@@ -132,14 +139,29 @@ const DropDown = ({ authenticated, address }) => {
         >
           {accountAddress}....
         </div> */}
-
+        {/* <Link
+          href={"/"}
+          onClick={() => setIsOpen(false)}
+          className="text-left flex items-center px-4 py-3 border-b-2 border-b-black "
+        >
+          <Home className="h-6 w-6 m500:h-4 m500:w-4 mr-[15px] m400:ml-4 m400:w-[12px]" />
+          Home
+        </Link> */}
         <Link
-          href={"/deposit"}
+          href={"/pay"}
           onClick={() => setIsOpen(false)}
           className="text-left flex items-center px-4 py-3 border-b-2 border-b-black "
         >
           <BanknoteIcon className="h-6 w-6 m500:h-4 m500:w-4 mr-[15px] m400:ml-4 m400:w-[12px]" />
-          Deposit
+          Pay
+        </Link>
+        <Link
+          href={"/withdraw"}
+          onClick={() => setIsOpen(false)}
+          className="text-left flex items-center px-4 py-3 border-b-2 border-b-black "
+        >
+          <CoinsIcon className="h-6 w-6 m500:h-4 m500:w-4 mr-[15px] m400:ml-4 m400:w-[12px]" />
+          Withdraw
         </Link>
 
         <div
