@@ -1,4 +1,4 @@
-import { baseNetwork } from "@/utils/chains";
+import { baseNetwork, incoNetwork } from "@/utils/chains";
 
 export const privyConfig = {
   appId: "cltn4pfm807ld12sf83bqr3iy",
@@ -11,7 +11,7 @@ export const privyConfig = {
       theme: "dark",
     },
     defaultChain: baseNetwork,
-    supportedChains: [baseNetwork],
+    supportedChains: [baseNetwork, incoNetwork],
     embeddedWallets: {
       createOnLogin: "users-without-wallets",
     },

@@ -2,9 +2,12 @@
 import React from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { Button } from "../ui/button";
+import Loading from "../loading";
 
 const LogginChecker = ({ children }) => {
-  const { login, authenticated } = usePrivy();
+  const { login, authenticated, ready } = usePrivy();
+
+  if (!ready) return <Loading />;
 
   return (
     <>

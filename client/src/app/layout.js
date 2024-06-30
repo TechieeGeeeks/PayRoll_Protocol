@@ -3,6 +3,7 @@ import "./globals.css";
 import ShadcnThemeProvider from "@/theme/themeProvider";
 import LogginChecker from "@/components/login/login-checker";
 import PrivyWrapper from "@/privy/privyProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,7 @@ export default function RootLayout({ children }) {
                 <LogginChecker>{children}</LogginChecker>
               </div>
             </main>
+            <Toaster />
           </PrivyWrapper>
         </ShadcnThemeProvider>
       </body>
