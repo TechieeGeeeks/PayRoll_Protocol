@@ -54,7 +54,7 @@ const Page = () => {
       <div className="space-y-8 mt-10">
         <div className="">
           <p className="font-semibold text-xl">Withdraw.</p>
-          <p>You've some secret withdraws</p>
+          <p>You&apos;ve some secret withdraws</p>
         </div>
 
         <div className="w-full border border-border bg-white rounded-base">
