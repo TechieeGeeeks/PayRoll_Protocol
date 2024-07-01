@@ -10,13 +10,21 @@ import {
   CoinsIcon,
   CopyIcon,
   LogOutIcon,
+  PiggyBank,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { createSmartAccountClient } from "@biconomy/account";
 import { Contract, ethers } from "ethers";
 import { getInstance } from "@/utils/fhevm";
-import { USDCABI, USDCCONTRACTADDRESS } from "@/utils/contractAddress";
+import {
+  PAYROLLCONTRACTADDRESS,
+  TOKENBRIDGEABI,
+  TOKENBRIDGECONTRACTADDRESS,
+  USDCABI,
+  USDCCONTRACTADDRESS,
+} from "@/utils/contractAddress";
+import { Input } from "@/components/ui/input";
 
 const Page = () => {
   const { authenticated, ready } = usePrivy();
@@ -40,7 +48,7 @@ const Page = () => {
     const bigNumber = ethers.BigNumber.from(balance);
     setTokens(bigNumber.toString());
   };
-
+  const [depositAmount, setDepositAmount] = useState();
   useEffect(() => {
     if (signer && ready && authenticated && w0) {
       getBalance();
@@ -101,7 +109,25 @@ const Page = () => {
     const signer = await provider?.getSigner();
     try {
       const usdcContract = new Contract(USDCCONTRACTADDRESS, USDCABI, signer);
-      await usdcContract.transferFromOwner();
+      await usdcContract.transferFromOwner(TOKENBRIDGECONTRACTADDRESS);
+      await getBalance();
+    } catch (error) {
+      console.error("Transaction failed:", error);
+    }
+  };
+
+  const handleDeposit = async () => {
+    w0.switchChain(84532);
+    const provider = await w0?.getEthersProvider();
+    const signer = await provider?.getSigner();
+    const value = ethers.utils.parseUnits(depositAmount, "ether");
+    try {
+      const usdcContract = new Contract(
+        TOKENBRIDGECONTRACTADDRESS,
+        TOKENBRIDGEABI,
+        signer
+      );
+      await usdcContract.lockTokens(value);
       await getBalance();
     } catch (error) {
       console.error("Transaction failed:", error);
@@ -111,14 +137,23 @@ const Page = () => {
   return (
     <div className="mt-10">
       <Header authenticated={authenticated} address={address} />
-      <div className="space-y-8 mt-10">
+      <div className="space-y-4 mt-10">
         <div className="">
-          <p className="font-semibold text-xl">Deposit Address.</p>
-          <p>Available tokens: {tokens === "0" ? "0" : tokens.slice(0, -18)}</p>
-        </div>
+          <div>
+            <div className="w-full items-center justify-between flex">
+              <p className="font-semibold text-xl">Deposit Address.</p>{" "}
+              <CoinsIcon
+                className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300"
+                onClick={handlePayBtn}
+              />
+            </div>
+          </div>
 
-        <div className="w-full border border-border bg-white rounded-base">
-          <img src={"/svgs/main.svg"} />
+          <div className="flex w-full items-center justify-between">
+            <p>
+              Available tokens: {tokens === "0" ? "0" : tokens.slice(0, -18)}
+            </p>
+          </div>
         </div>
         <div className="flex w-full justify-between">
           <p className="font-semibold text-lg">
@@ -129,8 +164,21 @@ const Page = () => {
             <CopyIcon className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300" />
           </div>
         </div>
-        <div className="flex items-center justify-end w-full">
-          <Button onClick={handlePayBtn}>Submit</Button>
+        <div className="w-full border border-border bg-white rounded-base">
+          <img src={"/svgs/main.svg"} />
+        </div>
+        <div className="space-y-1 font-semibold">
+          <p>Amount to deposit</p>
+          <div className="flex items-center justify-betweeb w-full gap-2 ">
+            <Input
+              placeholder="Token Amount"
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+            />
+            <Button variant="noShadow" onClick={handleDeposit}>
+              Deposit
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -214,14 +262,14 @@ const DropDown = ({ authenticated, address }) => {
         >
           {accountAddress}....
         </div> */}
-        {/* <Link
+        <Link
           href={"/"}
           onClick={() => setIsOpen(false)}
           className="text-left flex items-center px-4 py-3 border-b-2 border-b-black "
         >
-          <Home className="h-6 w-6 m500:h-4 m500:w-4 mr-[15px] m400:ml-4 m400:w-[12px]" />
-          Home
-        </Link> */}
+          <PiggyBank className="h-6 w-6 m500:h-4 m500:w-4 mr-[15px] m400:ml-4 m400:w-[12px]" />
+          Deposit
+        </Link>
         <Link
           href={"/pay"}
           onClick={() => setIsOpen(false)}
