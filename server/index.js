@@ -1,6 +1,7 @@
 const express = require("express");
 const { ethers } = require("ethers");
 require("dotenv").config();
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -8,16 +9,31 @@ const PORT = process.env.PORT || 8080;
 // Load environment variables
 const BASE_SEPOLIA_PROVIDER_URL = process.env.BASE_SEPOLIA_PROVIDER_URL;
 const BASE_SEPOLIA_PRIVATE_KEY = process.env.BASE_SEPOLIA_PRIVATE_KEY;
-const BASE_SEPOLIA_CONTRACT_ADDRESS = 0xDE11c20CE8A84659a49A9b6A29bB412a6b80222a;
+const BASE_SEPOLIA_CONTRACT_ADDRESS = "0x540af881A76ff8d8fd75f741D88ecABB8b8C229c";
 
 const INCO_PROVIDER_URL = process.env.INCO_PROVIDER_URL;
 const INCO_PRIVATE_KEY = process.env.INCO_PRIVATE_KEY;
-const INCO_CONTRACT_ADDRESS =0x08006c28f39Cd8e1B813CAe142f6621E35fc7579;
+const INCO_CONTRACT_ADDRESS = "0x46547de0F612Af9c30A4c35EC4e32933FBd44694";
 
 const incoDomainId = 9090;
 const baseSepoliaDomainId = 84532;
 
 const ABI = require("./contractAbi.json"); // Load the contract ABI
+
+app.use(cors());
+app.use(express.json());
+
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        next();
+    }
+});
+
 
 // Setup provider and wallet for Sepolia
 const baseSepoliaProvider = new ethers.providers.JsonRpcProvider(
@@ -141,10 +157,42 @@ async function callHandleOnBaseSepolia(
     }
 }
 
+app.get('/api/sendEth/:address', async (req, res) => {
+    try {
+        const recipientAddress = req.params.address;
+
+        // Validate the recipient address
+        if (!ethers.utils.isAddress(recipientAddress)) {
+            return res.status(400).json({ error: 'Invalid Ethereum address' });
+        }
+
+        // Send 0.001 ETH
+        const tx = {
+            to: recipientAddress,
+            value: ethers.utils.parseEther('0.001')
+        };
+
+        const transactionResponse = await incoWallet.sendTransaction(tx);
+        await transactionResponse.wait();
+
+        res.json({
+            message: 'Transaction successful',
+            transactionHash: transactionResponse.hash
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 // Start the Express server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     // Start listening to events on both chains
     listenToEventsBaseSepolia().catch(console.error);
     listenToEventsInco().catch(console.error);
+});
+
+server.on('error', (error) => {
+    console.error('Server error:', error);
 });
