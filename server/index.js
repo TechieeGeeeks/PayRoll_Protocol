@@ -17,7 +17,7 @@ const INCO_CONTRACT_ADDRESS = process.env.INCO_CONTRACT_ADDRESS;
 const incoDomainId = 9090;
 const baseSepoliaDomainId = 84532;
 
-const ABI = require("./contractABI.json"); // Load the contract ABI
+const ABI = require("./contractAbi.json"); // Load the contract ABI
 
 // Setup provider and wallet for Sepolia
 const baseSepoliaProvider = new ethers.providers.JsonRpcProvider(
