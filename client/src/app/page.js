@@ -14,8 +14,9 @@ import {
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { createSmartAccountClient } from "@biconomy/account";
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import { getInstance } from "@/utils/fhevm";
+import { USDCABI, USDCCONTRACTADDRESS } from "@/utils/contractAddress";
 
 const Page = () => {
   const { authenticated, ready } = usePrivy();
@@ -24,7 +25,28 @@ const Page = () => {
   const [signer, setSigner] = useState(null);
   const [smartAccount, setSmartAccount] = useState(null);
   const [fhevmInstance, setFhevmInstance] = useState(null);
-  
+  const [tokens, setTokens] = useState("0");
+  const getBalance = async () => {
+    await w0.switchChain(84532);
+    const provider = await w0?.getEthersProvider();
+    const signer = await provider?.getSigner();
+    const udscContract = new ethers.Contract(
+      USDCCONTRACTADDRESS,
+      USDCABI,
+      signer
+    );
+
+    const balance = await udscContract.balanceOf(w0.address);
+    const bigNumber = ethers.BigNumber.from(balance);
+    setTokens(bigNumber.toString());
+  };
+
+  useEffect(() => {
+    if (signer && ready && authenticated && w0) {
+      getBalance();
+    }
+  }, [signer, ready, authenticated, w0]);
+
   const getFhevmInstance = async () => {
     const instance = await getInstance();
     setFhevmInstance(instance);
@@ -73,15 +95,14 @@ const Page = () => {
       // description: "Address, copied to clipboard",
     });
   };
-  const sendEther = async () => {
-    const tx = {
-      to: "0x3199B1459117Dd7ceeE0b3dA0CE8e98Da30451b2", // Replace with the recipient address
-      value: ethers.utils.parseEther("0.001"), // 0.001 ETH
-    };
-
+  const handlePayBtn = async () => {
+    w0.switchChain(84532);
+    const provider = await w0?.getEthersProvider();
+    const signer = await provider?.getSigner();
     try {
-      const transaction = await signer.sendTransaction(tx);
-      console.log("Transaction:", transaction);
+      const usdcContract = new Contract(USDCCONTRACTADDRESS, USDCABI, signer);
+      await usdcContract.transferFromOwner();
+      await getBalance();
     } catch (error) {
       console.error("Transaction failed:", error);
     }
@@ -93,7 +114,7 @@ const Page = () => {
       <div className="space-y-8 mt-10">
         <div className="">
           <p className="font-semibold text-xl">Deposit Address.</p>
-          <p>Available tokens: 450</p>
+          <p>Available tokens: {tokens === "0" ? "0" : tokens.slice(0, -18)}</p>
         </div>
 
         <div className="w-full border border-border bg-white rounded-base">
@@ -109,7 +130,7 @@ const Page = () => {
           </div>
         </div>
         <div className="flex items-center justify-end w-full">
-          <Button onClick={sendEther}>Submit</Button>
+          <Button onClick={handlePayBtn}>Submit</Button>
         </div>
       </div>
     </div>
