@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
           <PrivyWrapper>
             <ReduxProvider>
               <main className="grid place-items-center min-h-screen bg-main/15 pb-20">
-                <div className="h-full w-full grid md:max-w-6xl px-6 md:px-12 pb-10">
+                <div className="h-full w-full grid md:max-w-6xl px-6 md:px-12">
                   <LogginChecker>{children}</LogginChecker>
                 </div>
               </main>

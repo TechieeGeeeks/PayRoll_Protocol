@@ -26,8 +26,26 @@ import {
 } from "@/utils/contractAddress";
 import { Input } from "@/components/ui/input";
 import { useViewport } from "@tma.js/sdk-react";
+import { useSelector } from "react-redux";
+import Pay from "./pay/page";
+import Withdraw from "./withdraw/page";
 
 const Page = () => {
+  const { navigation } = useSelector((state) => state.navigation);
+
+  return (
+    <>
+      {navigation === "/" && <Home />}
+      {navigation === "/deposit" && <Home />}
+      {navigation === "/pay" && <Pay />}
+      {navigation === "/withdraw" && <Withdraw />}
+    </>
+  );
+};
+
+export default Page;
+
+const Home = () => {
   const { authenticated, ready } = usePrivy();
   const { wallets } = useWallets();
   const w0 = wallets[0];
@@ -180,13 +198,11 @@ const Page = () => {
             <div className="flex items-center justify-betweeb w-full gap-2 ">
               <Input
                 placeholder="Token Amount"
-                className='shadow-light ring-0 focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:outline-0'
+                className="shadow-light ring-0 focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:outline-0"
                 value={depositAmount}
                 onChange={(e) => setDepositAmount(e.target.value)}
               />
-              <Button onClick={handleDeposit}>
-                Deposit
-              </Button>
+              <Button onClick={handleDeposit}>Deposit</Button>
             </div>
           </div>
         </div>
@@ -195,10 +211,8 @@ const Page = () => {
   );
 };
 
-export default Page;
-
 export const Header = ({ authenticated, address }) => {
-  const { login, logout } = usePrivy();
+  const { logout } = usePrivy();
   return (
     // <div className="mt-10 flex justify-between items-center scroll-m-20 border-b pb-4 text-3xl font-semibold tracking-tight transition-colors first:mt-0 my-4">
     <div className="flex justify-between items-center scroll-m-20 text-3xl font-semibold tracking-tight transition-colors first:mt-0 pb-4 border-b">

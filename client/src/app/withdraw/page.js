@@ -8,7 +8,7 @@ import { PAYROLLABI, PAYROLLCONTRACTADDRESS } from "@/utils/contractAddress";
 import axios from "axios";
 import { Contract } from "ethers";
 
-const Page = () => {
+const Withdraw = () => {
   const { authenticated, ready } = usePrivy();
   const { wallets } = useWallets();
   const w0 = wallets[0];
@@ -49,12 +49,12 @@ const Page = () => {
   };
 
   return (
-    <div className="mt-10">
+    <div className="mt-6">
       <Header authenticated={authenticated} address={address} />
-      <div className="space-y-8 mt-10">
+      <div className="space-y-8 mt-4">
         <div className="">
           <p className="font-semibold text-xl">Withdraw.</p>
-          <p>You&apos;ve some secret withdraws</p>
+          <p>You&apos;ve some secret withdrawals.</p>
         </div>
 
         <div className="w-full border border-border bg-white rounded-base">
@@ -69,4 +69,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default Withdraw;

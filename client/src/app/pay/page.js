@@ -16,7 +16,7 @@ import {
 import { Contract, ethers } from "ethers";
 import { RefreshCcw } from "lucide-react";
 
-const Page = () => {
+const Pay = () => {
   const { signTypedData } = usePrivy();
   const { authenticated, ready } = usePrivy();
   const [fhevmInstance, setFhevmInstance] = useState(null);
@@ -132,21 +132,11 @@ const Page = () => {
     await w0.switchChain(9090);
   };
   return (
-    <div className="mt-10">
+    <div className="mt-6">
       <Header address={address} authenticated={authenticated} />
-      <div className="space-y-8 mt-10">
+      <div className="space-y-8 mt-4">
         <div className="">
           <p className="font-semibold text-xl">Pay for salary.</p>
-          {/* <div className="w-full flex items-center justify-between">
-            <p>Available : {tokens === "0" ? "0" : tokens.slice(0, -18)}$</p>
-
-            <div
-              className="p-2 transition-all ease-in-out duration-300 hover:scale-125 hover:rotate-180"
-              onClick={handleRefreshToken}
-            >
-              <RefreshCcw className="w-4" />
-            </div>
-          </div> */}
         </div>
         <div className="grid grid-cols-2 mt-6 gap-8">
           {formFields.map(({ id, label }, index) => (
@@ -173,4 +163,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default Pay;
