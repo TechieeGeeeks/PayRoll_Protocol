@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        {/* <TmaSDKProvider> */}
+        <TmaSDKProvider>
         <ShadcnThemeProvider>
           <PrivyWrapper>
             <ReduxProvider>
@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
             </ReduxProvider>
           </PrivyWrapper>
         </ShadcnThemeProvider>
-        {/* </TmaSDKProvider> */}
+        </TmaSDKProvider>
       </body>
     </html>
   );
