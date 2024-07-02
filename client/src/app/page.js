@@ -26,16 +26,19 @@ import {
 } from "@/utils/contractAddress";
 import { Input } from "@/components/ui/input";
 import { useViewport } from "@tma.js/sdk-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Pay from "./pay/page";
 import Withdraw from "./withdraw/page";
 import LandingPage from "@/components/landingPage";
+import { setNavigation } from "@/redux/slices/navigationSlice";
+import LogginChecker from "@/components/login/login-checker";
 
 const Page = () => {
   const { navigation } = useSelector((state) => state.navigation);
 
   return (
     <>
+    {navigation === null && <LogginChecker /> }
       {navigation === "/" && <LandingPage />}
       {navigation === "/deposit" && <Home />}
       {navigation === "/pay" && <Pay />}
@@ -209,6 +212,11 @@ const Home = () => {
 
 export const Header = ({ authenticated, address }) => {
   const { logout } = usePrivy();
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+    logout();
+    dispatch(setNavigation(null));
+  };
   const copyAddress = (address) => {
     try {
       navigator.clipboard.writeText(`${address}`);

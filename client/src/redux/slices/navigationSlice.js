@@ -5,7 +5,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const naviagationSlice = createSlice({
   name: "navigation",
   initialState: {
-    navigation: "/",
+    navigation: null,
   },
   reducers: {
     setNavigation: (state, action) => {

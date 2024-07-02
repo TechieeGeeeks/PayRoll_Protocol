@@ -19,38 +19,42 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-main fixed bottom-0 z-40 w-full border-t md:hidden p-4">
-      <div className="grid grid-cols-4 md:hidden">
-        <div
-          className="w-full grid place-items-center"
-          onClick={() => handleNavigation("/")}
-        >
-          <TbSmartHome className="h-6 w-6" />
-          <div className="text-xs font-bold">Home</div>
-        </div>
-        <div
-          className="w-full grid place-items-center"
-          onClick={() => handleNavigation("/deposit")}
-        >
-          <PiHandDepositDuotone className="h-6 w-6" />
-          <div className="text-xs font-bold">Deposit</div>
-        </div>
-        <div
-          className="w-full grid place-items-center"
-          onClick={() => handleNavigation("/pay")}
-        >
-          <IoCardOutline className="h-6 w-6" />
-          <div className="text-xs font-bold">Pay</div>
-        </div>
-        <div
-          className="w-full grid place-items-center"
-          onClick={() => handleNavigation("/withdraw")}
-        >
-          <PiHandWithdrawDuotone className="h-6 w-6" />
-          <div className="text-xs font-bold">Withdraw</div>
-        </div>
-      </div>
-    </footer>
+    <>
+      {navigation !== null && (
+        <footer className="bg-main fixed bottom-0 z-40 w-full border-t md:hidden p-4">
+          <div className="grid grid-cols-4 md:hidden">
+            <div
+              className="w-full grid place-items-center"
+              onClick={() => handleNavigation("/")}
+            >
+              <TbSmartHome className="h-6 w-6" />
+              <div className="text-xs font-bold">Home</div>
+            </div>
+            <div
+              className="w-full grid place-items-center"
+              onClick={() => handleNavigation("/deposit")}
+            >
+              <PiHandDepositDuotone className="h-6 w-6" />
+              <div className="text-xs font-bold">Deposit</div>
+            </div>
+            <div
+              className="w-full grid place-items-center"
+              onClick={() => handleNavigation("/pay")}
+            >
+              <IoCardOutline className="h-6 w-6" />
+              <div className="text-xs font-bold">Pay</div>
+            </div>
+            <div
+              className="w-full grid place-items-center"
+              onClick={() => handleNavigation("/withdraw")}
+            >
+              <PiHandWithdrawDuotone className="h-6 w-6" />
+              <div className="text-xs font-bold">Withdraw</div>
+            </div>
+          </div>
+        </footer>
+      )}
+    </>
   );
 };
 

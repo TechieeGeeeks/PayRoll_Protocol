@@ -1,11 +1,27 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { Button } from "../ui/button";
 import Loading from "../loading";
+import { useDispatch } from "react-redux";
+import { setNavigation } from "@/redux/slices/navigationSlice";
 
 const LogginChecker = ({ children }) => {
   const { login, authenticated, ready } = usePrivy();
+  const dispatch = useDispatch();
+  const handleLogin = () => {
+    try {
+      login();
+      dispatch(setNavigation("/"));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    if (!authenticated || !ready) {
+      dispatch(setNavigation(null));
+    }
+  }, [ready, authenticated]);
 
   if (!ready) return <Loading />;
 
@@ -23,7 +39,7 @@ const LogginChecker = ({ children }) => {
             <div className="w-full border border-border bg-white rounded-base">
               <img src={"/svgs/login.svg"} />
             </div>
-            <Button className="w-full" onClick={login}>
+            <Button className="w-full" onClick={handleLogin}>
               Connect
             </Button>
           </div>

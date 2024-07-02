@@ -9,7 +9,7 @@ import { setNavigation } from "@/redux/slices/navigationSlice";
 export default function LandingPage() {
   const dispatch = useDispatch();
   return (
-    <div className=" min-h-screen flex flex-col">
+    <div className="flex flex-col">
       <Head>
         <title>PayRoll Protocol</title>
         <meta
