@@ -10,21 +10,80 @@ import {
   CoinsIcon,
   CopyIcon,
   LogOutIcon,
+  PiggyBank,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { createSmartAccountClient } from "@biconomy/account";
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import { getInstance } from "@/utils/fhevm";
+import {
+  PAYROLLCONTRACTADDRESS,
+  TOKENBRIDGEABI,
+  TOKENBRIDGECONTRACTADDRESS,
+  USDCABI,
+  USDCCONTRACTADDRESS,
+} from "@/utils/contractAddress";
+import { Input } from "@/components/ui/input";
+import { useViewport } from "@tma.js/sdk-react";
+import { useDispatch, useSelector } from "react-redux";
+import Pay from "./pay/page";
+import Withdraw from "./withdraw/page";
+import LandingPage from "@/components/landingPage";
+import { setNavigation } from "@/redux/slices/navigationSlice";
+import LogginChecker from "@/components/login/login-checker";
 
 const Page = () => {
+  const { navigation } = useSelector((state) => state.navigation);
+
+  return (
+    <>
+    {navigation === null && <LogginChecker /> }
+      {navigation === "/" && <LandingPage />}
+      {navigation === "/deposit" && <Home />}
+      {navigation === "/pay" && <Pay />}
+      {navigation === "/withdraw" && <Withdraw />}
+    </>
+  );
+};
+
+export default Page;
+
+const Home = () => {
   const { authenticated, ready } = usePrivy();
   const { wallets } = useWallets();
   const w0 = wallets[0];
   const [signer, setSigner] = useState(null);
   const [smartAccount, setSmartAccount] = useState(null);
   const [fhevmInstance, setFhevmInstance] = useState(null);
-  
+  const [tokens, setTokens] = useState("0");
+  const getBalance = async () => {
+    await w0.switchChain(84532);
+    const provider = await w0?.getEthersProvider();
+    const signer = await provider?.getSigner();
+    const udscContract = new ethers.Contract(
+      USDCCONTRACTADDRESS,
+      USDCABI,
+      signer
+    );
+
+    const balance = await udscContract.balanceOf(w0.address);
+    const bigNumber = ethers.BigNumber.from(balance);
+    setTokens(bigNumber.toString());
+  };
+  const [depositAmount, setDepositAmount] = useState();
+  useEffect(() => {
+    if (signer && ready && authenticated && w0) {
+      getBalance();
+    }
+  }, [signer, ready, authenticated, w0]);
+
+  // const vp = useViewport();
+
+  // useEffect(() => {
+  //   console.log(vp); // will be undefined and then Viewport instance.
+  // }, [vp]);
+
   const getFhevmInstance = async () => {
     const instance = await getInstance();
     setFhevmInstance(instance);
@@ -33,6 +92,12 @@ const Page = () => {
   useEffect(() => {
     getFhevmInstance();
   }, []);
+
+  useEffect(() => {
+    if (tokens !== "0") {
+      setDepositAmount(tokens.slice(0, -18));
+    }
+  }, [tokens]);
 
   const createSmartAccount = async (signer) => {
     if (!signer) return;
@@ -62,6 +127,96 @@ const Page = () => {
 
   const address = w0?.address;
 
+  const handlePayBtn = async () => {
+    w0.switchChain(84532);
+    const provider = await w0?.getEthersProvider();
+    const signer = await provider?.getSigner();
+    try {
+      const usdcContract = new Contract(USDCCONTRACTADDRESS, USDCABI, signer);
+      await usdcContract.transferFromOwner(TOKENBRIDGECONTRACTADDRESS);
+      await getBalance();
+    } catch (error) {
+      console.error("Transaction failed:", error);
+    }
+  };
+
+  const handleDeposit = async () => {
+    w0.switchChain(84532);
+    const provider = await w0?.getEthersProvider();
+    const signer = await provider?.getSigner();
+    const value = ethers.utils.parseUnits(depositAmount, "ether");
+    try {
+      const usdcContract = new Contract(
+        TOKENBRIDGECONTRACTADDRESS,
+        TOKENBRIDGEABI,
+        signer
+      );
+      await usdcContract.lockTokens(value);
+      await getBalance();
+    } catch (error) {
+      console.error("Transaction failed:", error);
+    }
+  };
+
+  return (
+    <>
+      <div className="mt-6">
+        <Header authenticated={authenticated} address={address} />
+        <div className="space-y-4 mt-4">
+          <div className="">
+            <div>
+              <div className="w-full items-center justify-between flex">
+                <p className="font-semibold text-xl">Deposit Address.</p>{" "}
+                <CoinsIcon
+                  className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300"
+                  onClick={handlePayBtn}
+                />
+              </div>
+            </div>
+
+            <div className="flex w-full items-center justify-between">
+              <p>
+                Available tokens: {tokens === "0" ? "0" : tokens.slice(0, -18)}
+              </p>
+            </div>
+          </div>
+          {/* <div className="flex w-full justify-between">
+          <p className="font-semibold text-lg">
+            Deposit at:{" "}
+            <span className="text-black/70">{truncateAddress(address)}</span>{" "}
+          </p>
+          <div onClick={() => copyAddress(address)}>
+            <CopyIcon className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300" />
+          </div>
+        </div> */}
+          <div className="w-full border border-border bg-white rounded-base">
+            <img src={"/svgs/main.svg"} />
+          </div>
+          <div className="space-y-1 font-semibold">
+            <p>Amount to deposit</p>
+            <div className="flex items-center justify-betweeb w-full gap-2 ">
+              <Input
+                placeholder="Token Amount"
+                className="shadow-light ring-0 focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:outline-0"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+              />
+              <Button onClick={handleDeposit}>Deposit</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export const Header = ({ authenticated, address }) => {
+  const { logout } = usePrivy();
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+    logout();
+    dispatch(setNavigation(null));
+  };
   const copyAddress = (address) => {
     try {
       navigator.clipboard.writeText(`${address}`);
@@ -73,58 +228,29 @@ const Page = () => {
       // description: "Address, copied to clipboard",
     });
   };
-  const sendEther = async () => {
-    const tx = {
-      to: "0x3199B1459117Dd7ceeE0b3dA0CE8e98Da30451b2", // Replace with the recipient address
-      value: ethers.utils.parseEther("0.001"), // 0.001 ETH
-    };
-
-    try {
-      const transaction = await signer.sendTransaction(tx);
-      console.log("Transaction:", transaction);
-    } catch (error) {
-      console.error("Transaction failed:", error);
-    }
-  };
-
   return (
-    <div className="mt-10">
-      <Header authenticated={authenticated} address={address} />
-      <div className="space-y-8 mt-10">
-        <div className="">
-          <p className="font-semibold text-xl">Deposit Address.</p>
-          <p>Available tokens: 450</p>
-        </div>
-
-        <div className="w-full border border-border bg-white rounded-base">
-          <img src={"/svgs/main.svg"} />
-        </div>
-        <div className="flex w-full justify-between">
-          <p className="font-semibold text-lg">
-            Deposit at:{" "}
-            <span className="text-black/70">{truncateAddress(address)}</span>{" "}
-          </p>
-          <div onClick={() => copyAddress(address)}>
-            <CopyIcon className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300" />
-          </div>
-        </div>
-        <div className="flex items-center justify-end w-full">
-          <Button onClick={sendEther}>Submit</Button>
+    // <div className="mt-10 flex justify-between items-center scroll-m-20 border-b pb-4 text-3xl font-semibold tracking-tight transition-colors first:mt-0 my-4">
+    <div className="flex justify-between items-center scroll-m-20 text-3xl font-semibold tracking-tight transition-colors first:mt-0 pb-4 border-b">
+      {/* <Link href={"/"}>Payroll</Link> */}
+      <div className="text-xl text-black/70 flex items-center gap-2">
+        {truncateAddress(address)}
+        <div onClick={() => copyAddress(address)}>
+          <CopyIcon className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300 w-4" />
         </div>
       </div>
-    </div>
-  );
-};
+      {/* <DropDown authenticated={authenticated} address={address} /> */}
 
-export default Page;
-
-export const Header = ({ authenticated, address }) => {
-  return (
-    <div className="mt-10 flex justify-between items-center scroll-m-20 border-b pb-4 text-3xl font-semibold tracking-tight transition-colors first:mt-0 my-4">
-      <Link href={"/"}>Payroll</Link>
       <div className="text-xl text-black/70 md:hidden flex items-center justify-center">
-        {/* {truncateAddress(address)} */}
-        <DropDown authenticated={authenticated} address={address} />
+        <Button
+          size="sm"
+          onClick={logout}
+          variant="neutral"
+          className="gap-2 flex items-center justify-between bg-red-500 text-white"
+        >
+          <LogOutIcon />
+          Logout
+        </Button>
+        {/* <DropDown authenticated={authenticated} address={address} /> */}
       </div>
     </div>
   );
@@ -193,14 +319,14 @@ const DropDown = ({ authenticated, address }) => {
         >
           {accountAddress}....
         </div> */}
-        {/* <Link
+        <Link
           href={"/"}
           onClick={() => setIsOpen(false)}
           className="text-left flex items-center px-4 py-3 border-b-2 border-b-black "
         >
-          <Home className="h-6 w-6 m500:h-4 m500:w-4 mr-[15px] m400:ml-4 m400:w-[12px]" />
-          Home
-        </Link> */}
+          <PiggyBank className="h-6 w-6 m500:h-4 m500:w-4 mr-[15px] m400:ml-4 m400:w-[12px]" />
+          Deposit
+        </Link>
         <Link
           href={"/pay"}
           onClick={() => setIsOpen(false)}

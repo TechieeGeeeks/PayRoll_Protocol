@@ -54,6 +54,33 @@ export async function switchToBaseNetwork(w0, setter) {
   }
 }
 
+export async function switchToIncoNetwork(w0) {
+  try {
+    const provider = await w0?.getEthersProvider();
+    const res = await provider?.send("wallet_addEthereumChain", [
+      {
+        chainId: "0x2382",
+        chainName: "Inco Gentry Testnet",
+        nativeCurrency: {
+          name: "INCO",
+          symbol: "INCO",
+          decimals: 18,
+        },
+        rpcUrls: ["https://testnet.inco.org/"],
+        blockExplorerUrls: ["https://explorer.testnet.inco.org"],
+      },
+    ]);
+
+    const network = await provider.detectNetwork();
+    // if (network.chainId === 9090) {
+    //   setter(chainsName.inco);
+    // }
+  } catch (error) {
+    console.log(error?.message);
+    toast(error?.message);
+  }
+}
+
 export const incoNetwork = {
   id: 9090,
   network: "Inco Gentry Testnet",
