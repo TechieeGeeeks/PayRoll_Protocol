@@ -4,6 +4,7 @@ import ShadcnThemeProvider from "@/theme/themeProvider";
 import LogginChecker from "@/components/login/login-checker";
 import PrivyWrapper from "@/privy/privyProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { TmaSDKProvider } from "@/components/tma";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,16 +17,18 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ShadcnThemeProvider>
-          <PrivyWrapper>
+        <TmaSDKProvider>
+          <ShadcnThemeProvider>
+            <PrivyWrapper>
               <main className="grid place-items-center min-h-screen bg-main/15">
                 <div className="h-full w-full grid md:max-w-6xl px-6 md:px-12 pb-10">
                   <LogginChecker>{children}</LogginChecker>
                 </div>
               </main>
               <Toaster />
-          </PrivyWrapper>
-        </ShadcnThemeProvider>
+            </PrivyWrapper>
+          </ShadcnThemeProvider>
+        </TmaSDKProvider>
       </body>
     </html>
   );

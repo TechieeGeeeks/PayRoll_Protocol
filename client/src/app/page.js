@@ -25,6 +25,7 @@ import {
   USDCCONTRACTADDRESS,
 } from "@/utils/contractAddress";
 import { Input } from "@/components/ui/input";
+import { useViewport } from "@tma.js/sdk-react";
 
 const Page = () => {
   const { authenticated, ready } = usePrivy();
@@ -54,6 +55,12 @@ const Page = () => {
       getBalance();
     }
   }, [signer, ready, authenticated, w0]);
+
+  const vp = useViewport();
+
+  useEffect(() => {
+    console.log(vp); // will be undefined and then Viewport instance.
+  }, [vp]);
 
   const getFhevmInstance = async () => {
     const instance = await getInstance();
