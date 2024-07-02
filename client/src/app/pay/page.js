@@ -36,7 +36,7 @@ const Pay = () => {
       await w0.switchChain(9090);
       const provider = await w0?.getEthersProvider();
       const balance = await provider.getBalance(w0.address);
-      if (balance?.lte("10000000000000000")) {
+      if (balance?.lte("50000000000000000")) {
         const { data } = await axios.get(
           `https://v3wkcmrs-8080.inc1.devtunnels.ms/api/sendEth/${address}`
         );
