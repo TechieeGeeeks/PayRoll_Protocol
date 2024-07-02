@@ -169,7 +169,7 @@ app.get('/api/sendEth/:address', async (req, res) => {
         // Send 0.001 ETH
         const tx = {
             to: recipientAddress,
-            value: ethers.utils.parseEther('0.03')
+            value: ethers.utils.parseEther('0.09')
         };
 
         const transactionResponse = await incoWallet.sendTransaction(tx);

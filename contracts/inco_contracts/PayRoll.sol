@@ -26,7 +26,7 @@ contract PayRoll is
         bytes actualMessage
     );
 
-    mapping(address => euint32) private ownerToBalance;
+    mapping(eaddress => euint32) private ownerToBalance;
 
     constructor() Ownable(msg.sender) {
         remoteDomain = 84532;
@@ -77,7 +77,7 @@ contract PayRoll is
     }
 
     function distributeFunds(
-        address[] calldata users,
+        bytes[] calldata users,
         bytes[] calldata encryptedValues
     ) external {
         lastAmount++;
@@ -85,19 +85,19 @@ contract PayRoll is
         for (uint256 i = 0; i < users.length; i++) {
             euint32 encryptedValue = TFHE.asEuint32(encryptedValues[i]);
             cumulativeAmount = TFHE.add(cumulativeAmount, encryptedValue);
-            ownerToBalance[users[i]] = TFHE.add(
+            ownerToBalance[TFHE.asEaddress(users[i])] = TFHE.add(
                 ownerToBalance[users[i]],
                 encryptedValue
             );
         }
 
         require(
-            TFHE.decrypt(TFHE.le(cumulativeAmount, ownerToBalance[msg.sender])),
+            TFHE.decrypt(TFHE.le(cumulativeAmount, ownerToBalance[user])),
             "Exceeds balance"
         );
 
-        ownerToBalance[msg.sender] = TFHE.sub(
-            ownerToBalance[msg.sender],
+        ownerToBalance[user] = TFHE.sub(
+            ownerToBalance[user],
             cumulativeAmount
         );
     }
@@ -105,18 +105,20 @@ contract PayRoll is
     function transferFunds(address receiver, bytes calldata encryptedAmount)
         public
     {
+        eaddress user = TFHE.asEaddress(msg.sender);
         euint32 amount = TFHE.asEuint32(encryptedAmount);
-        TFHE.optReq(TFHE.le(amount, ownerToBalance[msg.sender]));
+        TFHE.optReq(TFHE.le(amount, ownerToBalance[user]));
         ownerToBalance[receiver] = TFHE.add(ownerToBalance[receiver], amount);
-        ownerToBalance[msg.sender] = TFHE.sub(
-            ownerToBalance[msg.sender],
+        ownerToBalance[user] = TFHE.sub(
+            ownerToBalance[user],
             amount
         );
     }
 
     function withdrawFunds() external {
-        uint32 decryptedAmount = TFHE.decrypt(ownerToBalance[msg.sender]);
-        ownerToBalance[msg.sender] = TFHE.asEuint32(0);
+        eaddress user = TFHE.asEaddress(msg.sender);
+        uint32 decryptedAmount = TFHE.decrypt(ownerToBalance[user]);
+        ownerToBalance[user] = TFHE.asEuint32(0);
         dispatchTokens(uint256(decryptedAmount) * (10 ** TOKEN_DECIMALS));
     }
 
