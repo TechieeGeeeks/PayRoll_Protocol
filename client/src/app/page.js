@@ -29,13 +29,14 @@ import { useViewport } from "@tma.js/sdk-react";
 import { useSelector } from "react-redux";
 import Pay from "./pay/page";
 import Withdraw from "./withdraw/page";
+import LandingPage from "@/components/landingPage";
 
 const Page = () => {
   const { navigation } = useSelector((state) => state.navigation);
 
   return (
     <>
-      {navigation === "/" && <Home />}
+      {navigation === "/" && <LandingPage />}
       {navigation === "/deposit" && <Home />}
       {navigation === "/pay" && <Pay />}
       {navigation === "/withdraw" && <Withdraw />}
@@ -89,6 +90,12 @@ const Home = () => {
     getFhevmInstance();
   }, []);
 
+  useEffect(() => {
+    if (tokens !== "0") {
+      setDepositAmount(tokens.slice(0, -18));
+    }
+  }, [tokens]);
+
   const createSmartAccount = async (signer) => {
     if (!signer) return;
     const smartAccount = await createSmartAccountClient({
@@ -117,17 +124,6 @@ const Home = () => {
 
   const address = w0?.address;
 
-  const copyAddress = (address) => {
-    try {
-      navigator.clipboard.writeText(`${address}`);
-    } catch (error) {
-      console.log(error);
-    }
-    toast({
-      title: "Copied to clipboard!",
-      // description: "Address, copied to clipboard",
-    });
-  };
   const handlePayBtn = async () => {
     w0.switchChain(84532);
     const provider = await w0?.getEthersProvider();
@@ -213,11 +209,27 @@ const Home = () => {
 
 export const Header = ({ authenticated, address }) => {
   const { logout } = usePrivy();
+  const copyAddress = (address) => {
+    try {
+      navigator.clipboard.writeText(`${address}`);
+    } catch (error) {
+      console.log(error);
+    }
+    toast({
+      title: "Copied to clipboard!",
+      // description: "Address, copied to clipboard",
+    });
+  };
   return (
     // <div className="mt-10 flex justify-between items-center scroll-m-20 border-b pb-4 text-3xl font-semibold tracking-tight transition-colors first:mt-0 my-4">
     <div className="flex justify-between items-center scroll-m-20 text-3xl font-semibold tracking-tight transition-colors first:mt-0 pb-4 border-b">
       {/* <Link href={"/"}>Payroll</Link> */}
-      <p className="text-xl text-black/70">{truncateAddress(address)}</p>
+      <div className="text-xl text-black/70 flex items-center gap-2">
+        {truncateAddress(address)}
+        <div onClick={() => copyAddress(address)}>
+          <CopyIcon className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300 w-4" />
+        </div>
+      </div>
       {/* <DropDown authenticated={authenticated} address={address} /> */}
 
       <div className="text-xl text-black/70 md:hidden flex items-center justify-center">
