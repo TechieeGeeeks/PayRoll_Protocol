@@ -1,11 +1,8 @@
-
-# [Payroll Protocol](https://t.me/payrollprotocolbot)
-
-
 ### ⚠️ **Important Note**
 
 **🚨 As the deployment of the HyperLane bridge is done on the cloud Kurtosis free plan, the cross-chain calls won't work after 2nd july 11.30 pm. Please refer to the demo video for more information. 🚨**
 
+# [Payroll Protocol](https://t.me/payrollprotocolbot)
 
 **Payroll Protocol** is a confidential money distribution platform built on top of BASE, designed to provide confidentiality during the distribution of funds on-chain. By leveraging FHE cryptography and smart contracts, Payroll Protocol ensures the **confidentiality**, security, and efficiency of money distribution.
 
