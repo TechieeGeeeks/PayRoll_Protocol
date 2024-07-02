@@ -56,11 +56,11 @@ const Page = () => {
     }
   }, [signer, ready, authenticated, w0]);
 
-  const vp = useViewport();
+  // const vp = useViewport();
 
-  useEffect(() => {
-    console.log(vp); // will be undefined and then Viewport instance.
-  }, [vp]);
+  // useEffect(() => {
+  //   console.log(vp); // will be undefined and then Viewport instance.
+  // }, [vp]);
 
   const getFhevmInstance = async () => {
     const instance = await getInstance();
@@ -142,27 +142,28 @@ const Page = () => {
   };
 
   return (
-    <div className="mt-10">
-      <Header authenticated={authenticated} address={address} />
-      <div className="space-y-4 mt-10">
-        <div className="">
-          <div>
-            <div className="w-full items-center justify-between flex">
-              <p className="font-semibold text-xl">Deposit Address.</p>{" "}
-              <CoinsIcon
-                className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300"
-                onClick={handlePayBtn}
-              />
+    <>
+      <div className="mt-6">
+        <Header authenticated={authenticated} address={address} />
+        <div className="space-y-4 mt-4">
+          <div className="">
+            <div>
+              <div className="w-full items-center justify-between flex">
+                <p className="font-semibold text-xl">Deposit Address.</p>{" "}
+                <CoinsIcon
+                  className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300"
+                  onClick={handlePayBtn}
+                />
+              </div>
+            </div>
+
+            <div className="flex w-full items-center justify-between">
+              <p>
+                Available tokens: {tokens === "0" ? "0" : tokens.slice(0, -18)}
+              </p>
             </div>
           </div>
-
-          <div className="flex w-full items-center justify-between">
-            <p>
-              Available tokens: {tokens === "0" ? "0" : tokens.slice(0, -18)}
-            </p>
-          </div>
-        </div>
-        <div className="flex w-full justify-between">
+          {/* <div className="flex w-full justify-between">
           <p className="font-semibold text-lg">
             Deposit at:{" "}
             <span className="text-black/70">{truncateAddress(address)}</span>{" "}
@@ -170,37 +171,52 @@ const Page = () => {
           <div onClick={() => copyAddress(address)}>
             <CopyIcon className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300" />
           </div>
-        </div>
-        <div className="w-full border border-border bg-white rounded-base">
-          <img src={"/svgs/main.svg"} />
-        </div>
-        <div className="space-y-1 font-semibold">
-          <p>Amount to deposit</p>
-          <div className="flex items-center justify-betweeb w-full gap-2 ">
-            <Input
-              placeholder="Token Amount"
-              value={depositAmount}
-              onChange={(e) => setDepositAmount(e.target.value)}
-            />
-            <Button variant="noShadow" onClick={handleDeposit}>
-              Deposit
-            </Button>
+        </div> */}
+          <div className="w-full border border-border bg-white rounded-base">
+            <img src={"/svgs/main.svg"} />
+          </div>
+          <div className="space-y-1 font-semibold">
+            <p>Amount to deposit</p>
+            <div className="flex items-center justify-betweeb w-full gap-2 ">
+              <Input
+                placeholder="Token Amount"
+                className='shadow-light ring-0 focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:outline-0'
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+              />
+              <Button onClick={handleDeposit}>
+                Deposit
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
 export default Page;
 
 export const Header = ({ authenticated, address }) => {
+  const { login, logout } = usePrivy();
   return (
-    <div className="mt-10 flex justify-between items-center scroll-m-20 border-b pb-4 text-3xl font-semibold tracking-tight transition-colors first:mt-0 my-4">
-      <Link href={"/"}>Payroll</Link>
+    // <div className="mt-10 flex justify-between items-center scroll-m-20 border-b pb-4 text-3xl font-semibold tracking-tight transition-colors first:mt-0 my-4">
+    <div className="flex justify-between items-center scroll-m-20 text-3xl font-semibold tracking-tight transition-colors first:mt-0 pb-4 border-b">
+      {/* <Link href={"/"}>Payroll</Link> */}
+      <p className="text-xl text-black/70">{truncateAddress(address)}</p>
+      {/* <DropDown authenticated={authenticated} address={address} /> */}
+
       <div className="text-xl text-black/70 md:hidden flex items-center justify-center">
-        {/* {truncateAddress(address)} */}
-        <DropDown authenticated={authenticated} address={address} />
+        <Button
+          size="sm"
+          onClick={logout}
+          variant="neutral"
+          className="gap-2 flex items-center justify-between bg-red-500 text-white"
+        >
+          <LogOutIcon />
+          Logout
+        </Button>
+        {/* <DropDown authenticated={authenticated} address={address} /> */}
       </div>
     </div>
   );
