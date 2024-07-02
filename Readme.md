@@ -48,31 +48,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## TFHE functions examples: 
 ```javascript
-    mapping(eaddress => euint32) private ownerToBalance;
+      mapping(eaddress => euint32) private ownerToBalance;
 
-    function encryptAddress(address plainAddress, bytes32 publicKey) public view returns (eaddress) {
-        // Encrypt the plain address using the public key
-        return TFHE.encrypt(plainAddress, publicKey);
+    // Encrypt a plaintext address to eaddress
+    function encryptAddress(address plainAddress) public returns (eaddress) {
+        return asEaddress(plainAddress);
     }
 
     function decryptAddress(eaddress encryptedAddress) public view returns (address) {
         // Decrypt the encrypted address
         return TFHE.decrypt(encryptedAddress);
-    }
-
-    // Sample functions to demonstrate usage
-    function sampleEncryptAddress(address plainAddress) public view returns (eaddress) {
-        bytes32 publicKey = getPublicKey(); // Replace with actual method to get public key
-        return encryptAddress(plainAddress, publicKey);
-    }
-
-    function sampleDecryptAddress(eaddress encryptedAddress) public view returns (address) {
-        return decryptAddress(encryptedAddress);
-    }
-
-    function getPublicKey() internal view returns (bytes32) {
-        // Placeholder for getting public key, replace with actual implementation
-        return bytes32(0); // Replace with actual public key retrieval logic
     }
 ```
 
