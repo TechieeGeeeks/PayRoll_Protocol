@@ -55,12 +55,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
         return asEaddress(plainAddress);
     }
 
+      function decryptAddress(eaddress _eAddress) public view returns (address) {
+        // Decrypt the encrypted address
+        return TFHE.decrypt(_eAddress);
+    }
+
     function encryptAmount(uint32 amount) public view returns (euint32) {
         // Decrypt the encrypted address
         return TFHE.asEuint32(amount);
     }
 
-     function decryptAddress(euint32 encryptedAmount) public view returns (uint32) {
+     function decryptAmount(euint32 encryptedAmount) public view returns (uint32) {
         // Decrypt the encrypted address
         return TFHE.decrypt(encryptedAmount);
     }
