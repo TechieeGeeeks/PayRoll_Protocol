@@ -152,7 +152,7 @@ const Home = () => {
         TOKENBRIDGEABI,
         signer
       );
-      await usdcContract.lockTokens(value);
+      await usdcContract.lockTokens(value, { gasLimit: 7920027 });
       await getBalance();
     } catch (error) {
       console.error("Transaction failed:", error);
