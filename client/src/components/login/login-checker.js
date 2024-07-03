@@ -19,7 +19,7 @@ const LogginChecker = ({ children }) => {
   };
   useEffect(() => {
     if (!authenticated || !ready) {
-      dispatch(setNavigation(null));
+      dispatch(setNavigation('/login'));
     }
   }, [ready, authenticated]);
 

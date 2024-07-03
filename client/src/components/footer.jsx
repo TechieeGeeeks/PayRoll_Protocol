@@ -20,7 +20,7 @@ const Footer = () => {
 
   return (
     <>
-      {navigation !== null && (
+      {(navigation !== null && navigation !== '/login') && (
         <footer className="bg-main fixed bottom-0 z-40 w-full border-t md:hidden p-4">
           <div className="grid grid-cols-4 md:hidden">
             <div

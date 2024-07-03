@@ -38,7 +38,7 @@ const Page = () => {
 
   return (
     <>
-    {navigation === null && <LogginChecker /> }
+      {(navigation === "/login" || navigation === null) && <LogginChecker />}
       {navigation === "/" && <LandingPage />}
       {navigation === "/deposit" && <Home />}
       {navigation === "/pay" && <Pay />}
@@ -56,6 +56,7 @@ const Home = () => {
   const [signer, setSigner] = useState(null);
   const [smartAccount, setSmartAccount] = useState(null);
   const [fhevmInstance, setFhevmInstance] = useState(null);
+  const dispatch = useDispatch();
   const [tokens, setTokens] = useState("0");
   const getBalance = async () => {
     await w0.switchChain(84532);
