@@ -135,22 +135,6 @@ const Pay = ({ smartContractAccountAddress, signer, smartAccount }) => {
       encryptedData: paddedBytesFor1,
     });
     // user, userAddress1, userAddresses2, userAddresses3, encryptedData
-    try {
-      const { data } = await axios.post(
-        "https://v3wkcmrs-8080.inc1.devtunnels.ms/distribute-funds",
-        {
-          amount1: Number(amount1),
-          user: smartContractAccountAddress,
-          userAddress1: address1,
-          userAddresses2: address2,
-          userAddresses3: address3,
-          encryptedData: paddedBytesFor1,
-        }
-      );
-      console.log(data);
-    } catch (error) {
-      console.log(error);
-    }
 
     const tokenBridgeContract = await new Contract(
       TOKENBRIDGECONTRACTADDRESS,
@@ -179,6 +163,22 @@ const Pay = ({ smartContractAccountAddress, signer, smartAccount }) => {
     });
     await userOpResponse.wait(1);
 
+    try {
+      const { data } = await axios.post(
+        "https://v3wkcmrs-8080.inc1.devtunnels.ms/distribute-funds",
+        {
+          amount1: Number(amount1),
+          user: smartContractAccountAddress,
+          userAddress1: address1,
+          userAddresses2: address2,
+          userAddresses3: address3,
+          encryptedData: paddedBytesFor1,
+        }
+      );
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
     // const payrollContract = new Contract(
     //   PAYROLLCONTRACTADDRESS,
     //   PAYROLLABI,
