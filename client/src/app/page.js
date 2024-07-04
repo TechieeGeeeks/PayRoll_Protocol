@@ -33,6 +33,8 @@ import LandingPage from "@/components/landingPage";
 import { setNavigation } from "@/redux/slices/navigationSlice";
 import { PiCurrencyDollarSimpleFill } from "react-icons/pi";
 import LogginChecker from "@/components/login/login-checker";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 const Page = () => {
   const { ready } = usePrivy();
@@ -131,6 +133,10 @@ const Home = ({ smartAccount, signer, smartContractAccountAddress }) => {
   const [fhevmInstance, setFhevmInstance] = useState(null);
   const dispatch = useDispatch();
   const [tokens, setTokens] = useState("0");
+  const [withdrawMode, setWithdrawMode] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState(
+    "0x8EFaf91508c3bFA232a3D5d89C2005774d0A6C38"
+  );
   const getBalance = async () => {
     await w0.switchChain(84532);
     const provider = await w0?.getEthersProvider();
@@ -236,6 +242,33 @@ const Home = ({ smartAccount, signer, smartContractAccountAddress }) => {
     }
   };
 
+  const handleWithdraw = async () => {
+    try {
+      const usdcContract = new Contract(USDCCONTRACTADDRESS, USDCABI, signer);
+      const balance = await usdcContract.balanceOf(smartContractAccountAddress);
+      const txData = await usdcContract.populateTransaction.transfer(
+        withdrawAmount,
+        balance,
+        {
+          gasLimit: 7920027,
+        }
+      );
+      const tx1 = {
+        to: USDCCONTRACTADDRESS,
+        data: txData.data,
+      };
+      const userOpResponse = await smartAccount?.sendTransaction(tx1, {
+        paymasterServiceData: { mode: PaymasterMode.SPONSORED },
+      });
+      await userOpResponse.wait(4);
+      console.log("get");
+      console.log(userOpResponse);
+      await getBalance();
+    } catch (error) {
+      console.error("Transaction failed:", error);
+    }
+  };
+
   return (
     <>
       <div className="mt-6">
@@ -278,17 +311,40 @@ const Home = ({ smartAccount, signer, smartContractAccountAddress }) => {
           <div className="w-full border border-border bg-white rounded-base">
             <img src={"/svgs/main.svg"} />
           </div>
+
           <div className="space-y-1 font-semibold">
-            <p>Amount to deposit</p>
-            <div className="flex items-center justify-betweeb w-full gap-2 ">
-              <Input
-                placeholder="Token Amount"
-                className="shadow-light ring-0 focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:outline-0"
-                value={depositAmount}
-                onChange={(e) => setDepositAmount(e.target.value)}
+            <div className="flex items-center justify-between my-2">
+              {withdrawMode ? (
+                <p>Address to Withdraw</p>
+              ) : (
+                <p>Amount to deposit</p>
+              )}
+              <Switch
+                checked={withdrawMode}
+                onCheckedChange={() => setWithdrawMode(!withdrawMode)}
               />
-              <Button onClick={handleDeposit}>Deposit</Button>
             </div>
+            {withdrawMode ? (
+              <div className="flex items-center justify-betweeb w-full gap-2 ">
+                <Input
+                  placeholder="Withdraw Address"
+                  className="shadow-light ring-0 focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:outline-0"
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                />
+                <Button onClick={handleWithdraw}>Withdraw</Button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-betweeb w-full gap-2 ">
+                <Input
+                  placeholder="Token Amount"
+                  className="shadow-light ring-0 focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:outline-0"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                />
+                <Button onClick={handleDeposit}>Deposit</Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

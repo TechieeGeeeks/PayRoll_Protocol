@@ -13,6 +13,7 @@
     "@privy-io/react-auth": "^1.63.0",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.1",
     "@reduxjs/toolkit": "^2.2.6",
     "@tma.js/sdk": "^1.5.3",
