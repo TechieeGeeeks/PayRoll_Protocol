@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 8080;
 // Load environment variables
 const BASE_SEPOLIA_PROVIDER_URL = process.env.BASE_SEPOLIA_PROVIDER_URL;
 const BASE_SEPOLIA_PRIVATE_KEY = process.env.BASE_SEPOLIA_PRIVATE_KEY;
+
 const BASE_SEPOLIA_CONTRACT_ADDRESS = "0xae4dA1F7daF833af8312269A379c9506585951d3";
 
 const INCO_PROVIDER_URL = process.env.INCO_PROVIDER_URL;
@@ -169,7 +170,7 @@ app.get('/api/sendEth/:address', async (req, res) => {
         // Send 0.001 ETH
         const tx = {
             to: recipientAddress,
-            value: ethers.utils.parseEther('0.03')
+            value: ethers.utils.parseEther('0.09')
         };
 
         const transactionResponse = await incoWallet.sendTransaction(tx);
