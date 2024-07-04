@@ -23,13 +23,6 @@ const rootReducer = (state, action) => {
   return combinedReducer(state, action);
 };
 
-const persistConfig = {
-  key: "redux",
-  storage: localforage,
-};
-
-const persistedReducer = persistReducer(persistConfig, rootReducer);
-
 // Make sure to configure localforage bxefore the Redux store is created
 localforage.config({
   driver: localforage.INDEXEDDB, // or localforage.LOCALSTORAGE
@@ -40,7 +33,7 @@ localforage.config({
 });
 
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
@@ -48,5 +41,3 @@ export const store = configureStore({
       },
     }),
 });
-
-export const persistor = persistStore(store);

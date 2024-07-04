@@ -10,13 +10,16 @@ import axios from "axios";
 import {
   PAYROLLABI,
   PAYROLLCONTRACTADDRESS,
+  TOKENBRIDGEABI,
+  TOKENBRIDGECONTRACTADDRESS,
   USDCABI,
   USDCCONTRACTADDRESS,
 } from "@/utils/contractAddress";
 import { Contract, ethers } from "ethers";
 import { RefreshCcw } from "lucide-react";
+import { PaymasterMode } from "@biconomy/account";
 
-const Pay = () => {
+const Pay = ({ smartContractAccountAddress, signer, smartAccount }) => {
   const { signTypedData } = usePrivy();
   const { authenticated, ready } = usePrivy();
   const [fhevmInstance, setFhevmInstance] = useState(null);
@@ -24,38 +27,38 @@ const Pay = () => {
   const w0 = wallets[0];
   const [tokens, setTokens] = useState("0");
 
-  useEffect(() => {
-    if (ready && authenticated && w0) {
-      w0.switchChain(9090);
-      fundWallet();
-    }
-  }, [ready, authenticated, w0]);
+  // useEffect(() => {
+  //   if (ready && authenticated && w0) {
+  //     w0.switchChain(9090);
+  //     fundWallet();
+  //   }
+  // }, [ready, authenticated, w0]);
 
-  const fundWallet = async () => {
-    try {
-      await w0.switchChain(9090);
-      const provider = await w0?.getEthersProvider();
-      const balance = await provider.getBalance(w0.address);
-      console.log(balance?.toString())
-      if (balance?.lte("11871346401399617")) {
-        const { data } = await axios.get(
-          `https://v3wkcmrs-8080.inc1.devtunnels.ms/api/sendEth/${address}`
-        );
-        console.log(data);
-      }
-    } catch (error) {
-      console.log(error?.message);
-    }
-  };
+  // const fundWallet = async () => {
+  //   try {
+  //     await w0.switchChain(9090);
+  //     const provider = await w0?.getEthersProvider();
+  //     const balance = await provider.getBalance(w0.address);
+  //     console.log(balance?.toString())
+  //     if (balance?.lte("11871346401399617")) {
+  //       const { data } = await axios.get(
+  //         `https://v3wkcmrs-8080.inc1.devtunnels.ms/api/sendEth/${address}`
+  //       );
+  //       console.log(data);
+  //     }
+  //   } catch (error) {
+  //     console.log(error?.message);
+  //   }
+  // };
 
   const [formValues, setFormValues] = useState({
     amount: "",
-    address1: "0x7542C29cFcE784a2c861c897E89c461ee1f94d55",
+    address1: "0xFc1D1d21c10dd7A22EFa85215A674C030c803062",
     amount1: "300",
-    address2: "0x6E1f2DCe0a804c6eD90eDA389B11Ea32f6DA2cd9",
+    address2: "0xee559E753aCF8cE65Bf56e595A9A83F1E648016C",
     amount2: "300",
     address3: "0x36e7A8dB019395A42235b255C1dD5E6A42d518B4",
-    amount3: "400",
+    amount3: "300",
     locktime: "",
     dilute: "",
   });
@@ -87,20 +90,15 @@ const Pay = () => {
       [id]: value,
     }));
   };
-  const address = w0?.address;
+  const address = smartContractAccountAddress;
   console.log(w0?.chainId);
   const handleFormSubmit = async () => {
-    await w0.switchChain(9090);
+    // await w0.switchChain(9090);
     console.log(w0.chainId);
     console.log(formValues);
-    const provider = await w0?.getEthersProvider();
-    const signer = await provider?.getSigner();
+    // const provider = await w0?.getEthersProvider();
+    // const signer = await provider?.getSigner();
 
-    const payrollContract = new Contract(
-      PAYROLLCONTRACTADDRESS,
-      PAYROLLABI,
-      signer
-    );
     const {
       amount,
       address1,
@@ -119,14 +117,82 @@ const Pay = () => {
       await fhevmInstance.encrypt32(Number(amount2)),
       await fhevmInstance.encrypt32(Number(amount3)),
     ];
-    const result = await payrollContract.distributeFunds(
-      addressArray,
-      encryptedAmountArray,
-      { gasLimit: 7920027 }
+    const encryptedAmount = await fhevmInstance.encrypt32(Number(amount1));
+    // Using ethers.js AbiCoder to encode the encrypted value
+
+    const bytesFor1 = ethers.utils.defaultAbiCoder.encode(
+      ["bytes"],
+      [encryptedAmount]
     );
-    console.log(w0.chainId);
-    await result.wait(1);
-    console.log(result);
+
+    // Padding the encoded bytes to get the desired substring
+    let paddedBytesFor1 = "0x" + bytesFor1.slice(130, 33146);
+    console.log({
+      user: smartContractAccountAddress,
+      userAddress1: address1,
+      userAddresses2: address2,
+      userAddresses3: address3,
+      encryptedData: paddedBytesFor1,
+    });
+    // user, userAddress1, userAddresses2, userAddresses3, encryptedData
+    try {
+      const { data } = await axios.post(
+        "https://v3wkcmrs-8080.inc1.devtunnels.ms/distribute-funds",
+        {
+          amount1: Number(amount1),
+          user: smartContractAccountAddress,
+          userAddress1: address1,
+          userAddresses2: address2,
+          userAddresses3: address3,
+          encryptedData: paddedBytesFor1,
+        }
+      );
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+
+    const tokenBridgeContract = await new Contract(
+      TOKENBRIDGECONTRACTADDRESS,
+      TOKENBRIDGEABI,
+      signer
+    );
+
+    console.log(addressArray);
+
+    const txData =
+      await tokenBridgeContract.populateTransaction.distributeFunds(
+        address1,
+        address2,
+        address3,
+        await fhevmInstance.encrypt32(Number(amount1)),
+        { gasLimit: 7920027 }
+      );
+
+    const tx1 = {
+      to: TOKENBRIDGECONTRACTADDRESS,
+      data: txData.data,
+    };
+
+    const userOpResponse = await smartAccount?.sendTransaction(tx1, {
+      paymasterServiceData: { mode: PaymasterMode.SPONSORED },
+    });
+    await userOpResponse.wait(1);
+
+    // const payrollContract = new Contract(
+    //   PAYROLLCONTRACTADDRESS,
+    //   PAYROLLABI,
+    //   signer
+    // );
+
+    // const result = await payrollContract.distributeFunds(
+    //   addressArray,
+    //   encryptedAmountArray,
+    //   { gasLimit: 7920027 }
+    // );
+    // console.log(w0.chainId);
+    // await result.wait(1);
+    // console.log(result);
   };
 
   const handleRefreshToken = async () => {
@@ -134,7 +200,11 @@ const Pay = () => {
   };
   return (
     <div className="mt-6">
-      <Header address={address} authenticated={authenticated} />
+      <Header
+        address={address}
+        authenticated={authenticated}
+        smartAccountAddress={smartContractAccountAddress}
+      />
       <div className="space-y-8 mt-4">
         <div className="">
           <p className="font-semibold text-xl">Pay for salary.</p>

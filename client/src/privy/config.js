@@ -7,8 +7,11 @@ export const privyConfig = {
     appearance: { theme: "dark" },
     loginMethods: ["email"],
     appearance: {
-      walletList: ["metamask", "detected_wallets", "rainbow"],
+      // walletList: ["metamask", "detected_wallets", "rainbow"],
       theme: "dark",
+    },
+    embeddedWallets: {
+      createOnLogin: "users-without-wallets",
     },
     defaultChain: baseNetwork,
     supportedChains: [baseNetwork, incoNetwork],

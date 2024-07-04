@@ -8,6 +8,8 @@ import { setNavigation } from "@/redux/slices/navigationSlice";
 
 const LogginChecker = ({ children }) => {
   const { login, authenticated, ready } = usePrivy();
+  const w0 = useWallets();
+  // console.log(authenticated, w0)
   const dispatch = useDispatch();
   const handleLogin = () => {
     try {

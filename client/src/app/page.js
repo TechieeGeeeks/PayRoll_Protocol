@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { createSmartAccountClient } from "@biconomy/account";
+import { PaymasterMode, createSmartAccountClient } from "@biconomy/account";
 import { Contract, ethers } from "ethers";
 import { getInstance } from "@/utils/fhevm";
 import {
@@ -31,45 +31,120 @@ import Pay from "./pay/page";
 import Withdraw from "./withdraw/page";
 import LandingPage from "@/components/landingPage";
 import { setNavigation } from "@/redux/slices/navigationSlice";
+import { PiCurrencyDollarSimpleFill } from "react-icons/pi";
 import LogginChecker from "@/components/login/login-checker";
 
 const Page = () => {
+  const { ready } = usePrivy();
+  const { wallets } = useWallets();
+  const w0 = wallets[0];
+  const [signer, setSigner] = useState(null);
   const { navigation } = useSelector((state) => state.navigation);
+  // console.log(navigation);
+  const { authenticated } = usePrivy();
+  const dispatch = useDispatch();
+  const [smartAccount, setSmartAccount] = useState(null);
+  const [smartAccountAddress, setSmartAccountAddress] = useState("");
+  // const [smartContract, setsmartContract] = useState(null)
+  // console.log(smartAccount)
+  useEffect(() => {
+    if (authenticated) {
+      dispatch(setNavigation("/"));
+    }
+  }, [authenticated]);
+
+  const createSmartAccount = async (signer) => {
+    if (!signer) return;
+    const smartAccount = await createSmartAccountClient({
+      signer: signer,
+      bundlerUrl:
+        "https://bundler.biconomy.io/api/v2/84532/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44",
+      biconomyPaymasterApiKey: "9TNSt35x8.d36efc58-f988-4c7a-b2ea-a4ca79c1ef95",
+      rpcUrl: "https://sepolia.base.org",
+    });
+    return smartAccount;
+  };
+
+  const getSigner = async () => {
+    const provider = await w0?.getEthersProvider();
+    const signer = await provider?.getSigner();
+    setSigner(signer);
+    const smartContractAccount = await createSmartAccount(signer);
+    // console.log(smartContractAccount);
+    setSmartAccount(() => smartContractAccount);
+    // console.log(await smartContractAccount?.getAddress());
+    const newProvider = await new ethers.providers.JsonRpcProvider(
+      "https://sepolia.base.org"
+    );
+    // console.log(provider);
+    const newSigner = await newProvider?.getSigner(
+      await smartContractAccount?.getAddress()
+    );
+    setSmartAccountAddress(await smartContractAccount?.getAddress());
+    setSigner(newSigner);
+  };
+  // console.log(smartAccountAddress);
+  // console.log(signer)
+  useEffect(() => {
+    if (ready && authenticated) {
+      getSigner();
+    }
+  }, [w0]);
 
   return (
     <>
       {(navigation === "/login" || navigation === null) && <LogginChecker />}
       {navigation === "/" && <LandingPage />}
-      {navigation === "/deposit" && <Home />}
-      {navigation === "/pay" && <Pay />}
-      {navigation === "/withdraw" && <Withdraw />}
+      {navigation === "/deposit" && (
+        <Home
+          smartAccount={smartAccount}
+          signer={signer}
+          smartContractAccountAddress={smartAccountAddress}
+        />
+      )}
+      {navigation === "/pay" && (
+        <Pay
+          signer={signer}
+          smartAccount={smartAccount}
+          smartContractAccountAddress={smartAccountAddress}
+        />
+      )}
+      {navigation === "/withdraw" && (
+        <Withdraw
+          smartAccount={smartAccount}
+          signer={signer}
+          smartContractAccountAddress={smartAccountAddress}
+        />
+      )}
     </>
   );
 };
 
 export default Page;
 
-const Home = () => {
+const Home = ({ smartAccount, signer, smartContractAccountAddress }) => {
   const { authenticated, ready } = usePrivy();
   const { wallets } = useWallets();
   const w0 = wallets[0];
-  const [signer, setSigner] = useState(null);
-  const [smartAccount, setSmartAccount] = useState(null);
+  // const [signer, setSigner] = useState(null);
+  // const [smartAccount, setSmartAccount] = useState(null);
   const [fhevmInstance, setFhevmInstance] = useState(null);
   const dispatch = useDispatch();
   const [tokens, setTokens] = useState("0");
   const getBalance = async () => {
     await w0.switchChain(84532);
     const provider = await w0?.getEthersProvider();
-    const signer = await provider?.getSigner();
+    console.log("called");
+    // const signer = await provider?.getSigner();
     const udscContract = new ethers.Contract(
       USDCCONTRACTADDRESS,
       USDCABI,
       signer
     );
 
-    const balance = await udscContract.balanceOf(w0.address);
+    const balance = await udscContract.balanceOf(smartContractAccountAddress);
     const bigNumber = ethers.BigNumber.from(balance);
+    // console.log(balance);
     setTokens(bigNumber.toString());
   };
   const [depositAmount, setDepositAmount] = useState();
@@ -100,41 +175,33 @@ const Home = () => {
     }
   }, [tokens]);
 
-  const createSmartAccount = async (signer) => {
-    if (!signer) return;
-    const smartAccount = await createSmartAccountClient({
-      signer: signer,
-      bundlerUrl:
-        "https://bundler.biconomy.io/api/v2/84532/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44",
-      biconomyPaymasterApiKey:
-        "https://paymaster.biconomy.io/api/v1/84532/9TNSt35x8.d36efc58-f988-4c7a-b2ea-a4ca79c1ef95",
-      rpcUrl: "https://sepolia.base.org",
-    });
-    return smartAccount;
-  };
-
-  const getSigner = async () => {
-    const provider = await w0?.getEthersProvider();
-    const signer = await provider?.getSigner();
-    setSigner(signer);
-    const smartContractAccount = await createSmartAccount(signer);
-    setSmartAccount(smartContractAccount);
-  };
-  useEffect(() => {
-    if (ready && authenticated) {
-      setSigner(getSigner());
-    }
-  }, [w0]);
-
   const address = w0?.address;
 
   const handlePayBtn = async () => {
-    w0.switchChain(84532);
-    const provider = await w0?.getEthersProvider();
-    const signer = await provider?.getSigner();
+    // w0.switchChain(84532);
+    // const signer = await provider?.getSigner();
+    // console.log(await smartAccount.getSigner())
     try {
-      const usdcContract = new Contract(USDCCONTRACTADDRESS, USDCABI, signer);
-      await usdcContract.transferFromOwner(TOKENBRIDGECONTRACTADDRESS);
+      const usdcContract = await new Contract(
+        USDCCONTRACTADDRESS,
+        USDCABI,
+        signer
+      );
+
+      const txData = await usdcContract.populateTransaction.transferFromOwner(
+        TOKENBRIDGECONTRACTADDRESS
+      );
+
+      const tx1 = {
+        to: USDCCONTRACTADDRESS,
+        data: txData.data,
+      };
+
+      const userOpResponse = await smartAccount?.sendTransaction(tx1, {
+        paymasterServiceData: { mode: PaymasterMode.SPONSORED },
+      });
+      await userOpResponse.wait(1);
+
       await getBalance();
     } catch (error) {
       console.error("Transaction failed:", error);
@@ -142,9 +209,7 @@ const Home = () => {
   };
 
   const handleDeposit = async () => {
-    w0.switchChain(84532);
-    const provider = await w0?.getEthersProvider();
-    const signer = await provider?.getSigner();
+    // console.log(signer)
     const value = ethers.utils.parseUnits(depositAmount, "ether");
     try {
       const usdcContract = new Contract(
@@ -152,7 +217,19 @@ const Home = () => {
         TOKENBRIDGEABI,
         signer
       );
-      await usdcContract.lockTokens(value, { gasLimit: 7920027 });
+      const txData = await usdcContract.populateTransaction.lockTokens(value, {
+        gasLimit: 7920027,
+      });
+      const tx1 = {
+        to: TOKENBRIDGECONTRACTADDRESS,
+        data: txData.data,
+      };
+      const userOpResponse = await smartAccount?.sendTransaction(tx1, {
+        paymasterServiceData: { mode: PaymasterMode.SPONSORED },
+      });
+      await userOpResponse.wait(4);
+      console.log("get");
+      console.log(userOpResponse);
       await getBalance();
     } catch (error) {
       console.error("Transaction failed:", error);
@@ -162,7 +239,11 @@ const Home = () => {
   return (
     <>
       <div className="mt-6">
-        <Header authenticated={authenticated} address={address} />
+        <Header
+          authenticated={authenticated}
+          address={address}
+          smartAccountAddress={smartContractAccountAddress}
+        />
         <div className="space-y-4 mt-4">
           <div className="">
             <div>
@@ -176,9 +257,13 @@ const Home = () => {
             </div>
 
             <div className="flex w-full items-center justify-between">
-              <p>
-                Available tokens: {tokens === "0" ? "0" : tokens.slice(0, -18)}
-              </p>
+              <div className="flex items-center gap-1">
+                <p>
+                  Available tokens:{" "}
+                  {tokens === "0" ? "0" : tokens.slice(0, -18)}
+                </p>
+                <PiCurrencyDollarSimpleFill className="text-blue-800 text-xl" />
+              </div>
             </div>
           </div>
           {/* <div className="flex w-full justify-between">
@@ -211,16 +296,17 @@ const Home = () => {
   );
 };
 
-export const Header = ({ authenticated, address }) => {
+export const Header = ({ authenticated, address, smartAccountAddress }) => {
+  // console.log(smartAccountAddress);
   const { logout } = usePrivy();
   const dispatch = useDispatch();
   const handleLogout = () => {
     logout();
     dispatch(setNavigation(null));
   };
-  const copyAddress = (address) => {
+  const copyAddress = (smartAccountAddress) => {
     try {
-      navigator.clipboard.writeText(`${address}`);
+      navigator.clipboard.writeText(`${smartAccountAddress}`);
     } catch (error) {
       console.log(error);
     }
@@ -234,8 +320,8 @@ export const Header = ({ authenticated, address }) => {
     <div className="flex justify-between items-center scroll-m-20 text-3xl font-semibold tracking-tight transition-colors first:mt-0 pb-4 border-b">
       {/* <Link href={"/"}>Payroll</Link> */}
       <div className="text-xl text-black/70 flex items-center gap-2">
-        {truncateAddress(address)}
-        <div onClick={() => copyAddress(address)}>
+        {truncateAddress(smartAccountAddress)}
+        <div onClick={() => copyAddress(smartAccountAddress)}>
           <CopyIcon className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300 w-4" />
         </div>
       </div>

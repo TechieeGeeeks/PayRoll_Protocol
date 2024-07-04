@@ -4,18 +4,24 @@ import { Header } from "../page";
 import { Button } from "@/components/ui/button";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { truncateAddress } from "@/utils/webHelpers";
-import { PAYROLLABI, PAYROLLCONTRACTADDRESS } from "@/utils/contractAddress";
+import {
+  PAYROLLABI,
+  PAYROLLCONTRACTADDRESS,
+  TOKENBRIDGEABI,
+  TOKENBRIDGECONTRACTADDRESS,
+} from "@/utils/contractAddress";
 import axios from "axios";
 import { Contract } from "ethers";
+import { PaymasterMode } from "@biconomy/account";
 
-const Withdraw = () => {
+const Withdraw = ({ smartContractAccountAddress, signer, smartAccount }) => {
   const { authenticated, ready } = usePrivy();
   const { wallets } = useWallets();
   const w0 = wallets[0];
   const address = w0?.address;
   const fundWallet = async () => {
     try {
-      await w0.switchChain(9090);
+      // await w0.switchChain(9090);
       const provider = await w0?.getEthersProvider();
       const balance = await provider.getBalance(w0.address);
       if (balance?.lte("10000000000000000")) {
@@ -30,27 +36,52 @@ const Withdraw = () => {
   };
   useEffect(() => {
     if (ready && authenticated && w0) {
-      w0.switchChain(9090);
-      fundWallet();
+      // w0.switchChain(9090);
+      // fundWallet();
     }
   }, [ready, authenticated, w0]);
   const withdrawFunds = async () => {
-    const provider = await w0?.getEthersProvider();
-    const signer = await provider?.getSigner();
-
-    const payrollContract = new Contract(
-      PAYROLLCONTRACTADDRESS,
-      PAYROLLABI,
+    const tokenBridgeContract = await new Contract(
+      TOKENBRIDGECONTRACTADDRESS,
+      TOKENBRIDGEABI,
       signer
     );
 
-    const tx = await payrollContract.withdrawFunds();
-    console.log(tx);
+    const txData = await tokenBridgeContract.populateTransaction.withdrawFunds(
+      "100000000000",
+      {
+        gasLimit: 7920027,
+      }
+    );
+
+    const tx1 = {
+      to: TOKENBRIDGECONTRACTADDRESS,
+      data: txData.data,
+    };
+
+    const userOpResponse = await smartAccount?.sendTransaction(tx1, {
+      paymasterServiceData: { mode: PaymasterMode.SPONSORED },
+    });
+    await userOpResponse.wait(1);
+    // const provider = await w0?.getEthersProvider();
+    // const signer = await provider?.getSigner();
+
+    // const payrollContract = new Contract(
+    //   PAYROLLCONTRACTADDRESS,
+    //   PAYROLLABI,
+    //   signer
+    // );
+
+    // const tx = await payrollContract.withdrawFunds();
+    // console.log(tx);
   };
 
   return (
     <div className="mt-6">
-      <Header authenticated={authenticated} address={address} />
+      <Header
+        authenticated={authenticated}
+        smartAccountAddress={smartContractAccountAddress}
+      />
       <div className="space-y-8 mt-4">
         <div className="">
           <p className="font-semibold text-xl">Withdraw.</p>
