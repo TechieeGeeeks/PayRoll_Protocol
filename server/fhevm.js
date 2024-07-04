@@ -1,7 +1,8 @@
-import { ethers } from "ethers";
-import { defaultAbiCoder } from "ethers/lib/utils";
-import { initFhevm, createInstance } from "fhevmjs";
-export const init = async () => {
+const { ethers } = require("ethers");
+const { defaultAbiCoder } = require("ethers/lib/utils");
+const { initFhevm, createInstance } = require("fhevmjs");
+
+const init = async () => {
   await initFhevm();
 };
 
@@ -9,7 +10,7 @@ export const init = async () => {
 // From https://github.com/zama-ai/fhevmjs/blob/c4b8a80a8783ef965973283362221e365a193b76/bin/fhevm.js#L9
 const FHE_LIB_ADDRESS = "0x000000000000000000000000000000000000005d";
 
-export const provider = new ethers.providers.JsonRpcProvider(
+const provider = new ethers.providers.JsonRpcProvider(
   "https://testnet.inco.org",
   {
     chainId: 9090,
@@ -17,7 +18,7 @@ export const provider = new ethers.providers.JsonRpcProvider(
   }
 );
 
-export const createFhevmInstance = async () => {
+const createFhevmInstance = async () => {
   const network = await provider.getNetwork();
   const chainId = +network.chainId.toString();
   // Get blockchain public key
@@ -33,8 +34,11 @@ export const createFhevmInstance = async () => {
   return instance;
 };
 
-export const getInstance = async () => {
-  await init();
+const getInstance = async () => {
   const instance = await createFhevmInstance();
   return instance;
 };
+
+module.exports={
+  getInstance
+}

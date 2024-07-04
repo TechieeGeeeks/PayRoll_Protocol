@@ -21,6 +21,7 @@ const baseSepoliaDomainId = 84532;
 const INCO_ABI = require("./incoContractABI.json"); // Load the contract ABI
 const BASE_SEPOLIA_ABI = require("./baseSepoliaContractABI.json"); // Load the contract ABI
 
+
 app.use(cors());
 app.use(express.json({ limit: '2mb' })); // Set limit to handle large payloads
 
@@ -58,6 +59,7 @@ const incoContract = new ethers.Contract(
     INCO_ABI,
     incoWallet
 );
+
 
 
 // Event listener function for Sepolia
