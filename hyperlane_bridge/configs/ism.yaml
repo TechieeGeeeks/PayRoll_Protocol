@@ -1,2 +1,8 @@
-{}
-
+inco:
+  threshold: 1
+  validators:
+    - '0x1950498e95274Dc79Fbca238C2BE53684D69886F'
+basesepolia:
+  threshold: 1
+  validators:
+    - '0x1950498e95274Dc79Fbca238C2BE53684D69886F'
