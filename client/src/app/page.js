@@ -35,6 +35,7 @@ import { PiCurrencyDollarSimpleFill } from "react-icons/pi";
 import LogginChecker from "@/components/login/login-checker";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import Image from "next/image";
 
 const Page = () => {
   const { ready } = usePrivy();
@@ -277,74 +278,81 @@ const Home = ({ smartAccount, signer, smartContractAccountAddress }) => {
           address={address}
           smartAccountAddress={smartContractAccountAddress}
         />
-        <div className="space-y-4 mt-4">
-          <div className="">
-            <div>
-              <div className="w-full items-center justify-between flex">
-                <p className="font-semibold text-xl">Deposit Address.</p>{" "}
-                <CoinsIcon
-                  className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300"
-                  onClick={handlePayBtn}
+        <div className="md:grid grid-cols-2 md:mt-20 md:gap-10">
+          <div className="space-y-4 mt-4 md:flex md:flex-col items-center justify-between w-full">
+            <div className="w-full">
+              <div>
+                <div className="w-full items-center justify-between flex">
+                  <p className="font-semibold text-xl">Deposit Address.</p>{" "}
+                  <CoinsIcon
+                    className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300"
+                    onClick={handlePayBtn}
+                  />
+                </div>
+              </div>
+
+              <div className="flex w-full items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <p>
+                    Available tokens:{" "}
+                    {tokens === "0" ? "0" : tokens.slice(0, -18)}
+                  </p>
+                  <PiCurrencyDollarSimpleFill className="text-blue-800 text-xl" />
+                </div>
+              </div>
+
+              <div className="hidden md:flex w-full mt-8">
+                Securely deposit funds into the Payroll Protocol system. Using
+                our advanced blockchain technology, all transactions are
+                encrypted and stored immutably, ensuring both security and
+                transparency. Simply enter the total salary amount and the
+                encrypted addresses of your employees, and our platform will
+                handle the rest, ensuring timely and private salary
+                disbursements.
+              </div>
+            </div>
+
+            <div className="w-full border border-border bg-white rounded-base md:hidden">
+              <Image src={"/svgs/main.svg"} width={1080} height={1080} />
+            </div>
+
+            <div className="space-y-1 w-full font-semibold">
+              <div className="flex items-center justify-between my-2">
+                {withdrawMode ? (
+                  <p>Address to Withdraw</p>
+                ) : (
+                  <p>Amount to deposit</p>
+                )}
+                <Switch
+                  checked={withdrawMode}
+                  onCheckedChange={() => setWithdrawMode(!withdrawMode)}
                 />
               </div>
-            </div>
-
-            <div className="flex w-full items-center justify-between">
-              <div className="flex items-center gap-1">
-                <p>
-                  Available tokens:{" "}
-                  {tokens === "0" ? "0" : tokens.slice(0, -18)}
-                </p>
-                <PiCurrencyDollarSimpleFill className="text-blue-800 text-xl" />
-              </div>
-            </div>
-          </div>
-          {/* <div className="flex w-full justify-between">
-          <p className="font-semibold text-lg">
-            Deposit at:{" "}
-            <span className="text-black/70">{truncateAddress(address)}</span>{" "}
-          </p>
-          <div onClick={() => copyAddress(address)}>
-            <CopyIcon className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300" />
-          </div>
-        </div> */}
-          <div className="w-full border border-border bg-white rounded-base">
-            <img src={"/svgs/main.svg"} />
-          </div>
-
-          <div className="space-y-1 font-semibold">
-            <div className="flex items-center justify-between my-2">
               {withdrawMode ? (
-                <p>Address to Withdraw</p>
+                <div className="flex items-center justify-betweeb w-full gap-2 ">
+                  <Input
+                    placeholder="Withdraw Address"
+                    className="shadow-light ring-0 focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:outline-0"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                  />
+                  <Button onClick={handleWithdraw}>Withdraw</Button>
+                </div>
               ) : (
-                <p>Amount to deposit</p>
+                <div className="flex items-center justify-betweeb w-full gap-2 ">
+                  <Input
+                    placeholder="Token Amount"
+                    className="shadow-light ring-0 focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:outline-0"
+                    value={depositAmount}
+                    onChange={(e) => setDepositAmount(e.target.value)}
+                  />
+                  <Button onClick={handleDeposit}>Deposit</Button>
+                </div>
               )}
-              <Switch
-                checked={withdrawMode}
-                onCheckedChange={() => setWithdrawMode(!withdrawMode)}
-              />
             </div>
-            {withdrawMode ? (
-              <div className="flex items-center justify-betweeb w-full gap-2 ">
-                <Input
-                  placeholder="Withdraw Address"
-                  className="shadow-light ring-0 focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:outline-0"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                />
-                <Button onClick={handleWithdraw}>Withdraw</Button>
-              </div>
-            ) : (
-              <div className="flex items-center justify-betweeb w-full gap-2 ">
-                <Input
-                  placeholder="Token Amount"
-                  className="shadow-light ring-0 focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:outline-0"
-                  value={depositAmount}
-                  onChange={(e) => setDepositAmount(e.target.value)}
-                />
-                <Button onClick={handleDeposit}>Deposit</Button>
-              </div>
-            )}
+          </div>
+          <div className="hidden md:flex bg-white border rounded-base shadow-light">
+            <Image src={"/svgs/main.svg"} width={1080} height={1080} />
           </div>
         </div>
       </div>
@@ -356,6 +364,15 @@ export const Header = ({ authenticated, address, smartAccountAddress }) => {
   // console.log(smartAccountAddress);
   const { logout } = usePrivy();
   const dispatch = useDispatch();
+  const { navigation } = useSelector((state) => state.navigation);
+  const [nav, setNav] = useState(navigation);
+  useEffect(() => {
+    setNav(navigation);
+  }, [navigation]);
+
+  const handleNavigation = (to) => {
+    dispatch(setNavigation(to));
+  };
   const handleLogout = () => {
     logout();
     dispatch(setNavigation(null));
@@ -372,27 +389,39 @@ export const Header = ({ authenticated, address, smartAccountAddress }) => {
     });
   };
   return (
-    // <div className="mt-10 flex justify-between items-center scroll-m-20 border-b pb-4 text-3xl font-semibold tracking-tight transition-colors first:mt-0 my-4">
     <div className="flex justify-between items-center scroll-m-20 text-3xl font-semibold tracking-tight transition-colors first:mt-0 pb-4 border-b">
       {/* <Link href={"/"}>Payroll</Link> */}
-      <div className="text-xl text-black/70 flex items-center gap-2">
+      <div
+        className="text-2xl md:flex items-center gap-2 hidden"
+        onClick={() => handleNavigation("/")}
+      >
+        {nav === "/pay"
+          ? "Distribition per address"
+          : "Payroll Protocol"}
+      </div>
+      <div className="text-xl text-black/70 flex items-center gap-2 md:hidden">
         {truncateAddress(smartAccountAddress)}
         <div onClick={() => copyAddress(smartAccountAddress)}>
           <CopyIcon className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300 w-4" />
         </div>
       </div>
-      {/* <DropDown authenticated={authenticated} address={address} /> */}
 
-      <div className="text-xl text-black/70 md:hidden flex items-center justify-center">
+      <div className="text-xl text-black/70  flex gap-3 items-center justify-center">
         <Button
           size="sm"
           onClick={logout}
           variant="neutral"
-          className="gap-2 flex items-center justify-between bg-red-500 text-white"
+          className="gap-2 md:hidden flex items-center justify-between bg-red-500 text-white"
         >
           <LogOutIcon />
           Logout
         </Button>
+        <div className="hidden md:flex cursor-none">
+          <DropDown
+            authenticated={authenticated}
+            address={smartAccountAddress}
+          />
+        </div>
         {/* <DropDown authenticated={authenticated} address={address} /> */}
       </div>
     </div>
@@ -400,8 +429,24 @@ export const Header = ({ authenticated, address, smartAccountAddress }) => {
 };
 
 const DropDown = ({ authenticated, address }) => {
+  const copyAddress = (smartAccountAddress) => {
+    try {
+      navigator.clipboard.writeText(`${smartAccountAddress}`);
+    } catch (error) {
+      console.log(error);
+    }
+    toast({
+      title: "Copied to clipboard!",
+      // description: "Address, copied to clipboard",
+    });
+  };
   const [isOpen, setIsOpen] = useState(false);
   const { login, logout } = usePrivy();
+  const { navigation } = useSelector((state) => state.navigation);
+  const dispatch = useDispatch();
+  const handleNavigation = (to) => {
+    dispatch(setNavigation(to));
+  };
   // const { wallets } = useWallets();
   // const w0 = wallets[0];
   // const [tokens, setTokens] = useState("0");
@@ -421,10 +466,13 @@ const DropDown = ({ authenticated, address }) => {
           onClick={() => {
             setIsOpen(!isOpen);
           }}
-          className="flex items-center gap-2 text-xl font-base"
+          className="flex items-center gap-2 text-xl font-base cursor-none"
         >
-          <div className="flex items-center gap-2 font-semibold">
+          <div className="flex items-center gap-2 font-semibold cursor-none">
             {/* <GiToken className="" /> */}
+            <div onClick={() => copyAddress(smartAccountAddress)}>
+              <CopyIcon className="text-black/40 hover:text-black hover:scale-110 transition-all ease-in-out duration-300 w-4" />
+            </div>
             {truncateAddress(address)}
             {/* <p> {token === "0" ? "0" : token.slice(0, -18)}</p> */}
           </div>
@@ -462,34 +510,40 @@ const DropDown = ({ authenticated, address }) => {
         >
           {accountAddress}....
         </div> */}
-        <Link
-          href={"/"}
-          onClick={() => setIsOpen(false)}
-          className="text-left flex items-center px-4 py-3 border-b-2 border-b-black "
+        <div
+          onClick={() => {
+            setIsOpen(false);
+            handleNavigation("/deposit");
+          }}
+          className="text-left hover:bg-black/10 flex items-center px-4 py-3 border-b-2 border-b-black "
         >
           <PiggyBank className="h-6 w-6 m500:h-4 m500:w-4 mr-[15px] m400:ml-4 m400:w-[12px]" />
           Deposit
-        </Link>
-        <Link
-          href={"/pay"}
-          onClick={() => setIsOpen(false)}
-          className="text-left flex items-center px-4 py-3 border-b-2 border-b-black "
+        </div>
+        <div
+          onClick={() => {
+            setIsOpen(false);
+            handleNavigation("/pay");
+          }}
+          className="text-left hover:bg-black/10 flex items-center px-4 py-3 border-b-2 border-b-black "
         >
           <BanknoteIcon className="h-6 w-6 m500:h-4 m500:w-4 mr-[15px] m400:ml-4 m400:w-[12px]" />
           Pay
-        </Link>
-        <Link
-          href={"/withdraw"}
-          onClick={() => setIsOpen(false)}
-          className="text-left flex items-center px-4 py-3 border-b-2 border-b-black "
+        </div>
+        <div
+          onClick={() => {
+            setIsOpen(false);
+            handleNavigation("/withdraw");
+          }}
+          className="text-left hover:bg-black/10 flex items-center px-4 py-3 border-b-2 border-b-black "
         >
           <CoinsIcon className="h-6 w-6 m500:h-4 m500:w-4 mr-[15px] m400:ml-4 m400:w-[12px]" />
           Withdraw
-        </Link>
+        </div>
 
         <div
           onClick={handleLogout}
-          className="text-left flex items-center px-4 py-3 border-b-2 border-b-black bg-red-500 text-white cursor-pointer"
+          className="text-left hover:bg-red-600  flex items-center px-4 py-3 border-b-2 border-b-black bg-red-500 text-white"
         >
           <LogOutIcon className="h-6 w-6 m500:h-4 m500:w-4 mr-[15px] m400:ml-4 m400:w-[12px]" />
           Logout

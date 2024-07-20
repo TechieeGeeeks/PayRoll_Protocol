@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 import { Contract } from "ethers";
 import { PaymasterMode } from "@biconomy/account";
+import Image from "next/image";
 
 const Withdraw = ({ smartContractAccountAddress, signer, smartAccount }) => {
   const { authenticated, ready } = usePrivy();
@@ -82,18 +83,32 @@ const Withdraw = ({ smartContractAccountAddress, signer, smartAccount }) => {
         authenticated={authenticated}
         smartAccountAddress={smartContractAccountAddress}
       />
-      <div className="space-y-8 mt-4">
-        <div className="">
-          <p className="font-semibold text-xl">Withdraw.</p>
-          <p>You&apos;ve some secret withdrawals.</p>
-        </div>
+      <div className="md:grid grid-cols-2 md:mt-20 md:gap-10">
+        <div className="space-y-8 mt-4 md:flex flex-col items-center justify-between">
+          <div className="w-full">
+            <p className="font-semibold text-xl">Withdraw.</p>
+            <p>You&apos;ve some secret withdrawals.</p>
 
-        <div className="w-full border border-border bg-white rounded-base">
-          <img src={"/svgs/main.svg"} />
-        </div>
+            <div className="hidden md:flex w-full mt-8">
+              Securely deposit funds into the Payroll Protocol system. Using our
+              advanced blockchain technology, all transactions are encrypted and
+              stored immutably, ensuring both security and transparency. Simply
+              enter the total salary amount and the encrypted addresses of your
+              employees, and our platform will handle the rest, ensuring timely
+              and private salary disbursements.
+            </div>
+          </div>
 
-        <div className="flex items-center justify-end w-full">
-          <Button onClick={withdrawFunds}>Withdraw Funds</Button>
+          <div className="w-full border  md:hidden border-border bg-white rounded-base">
+            <img src={"/svgs/main.svg"} />
+          </div>
+
+          <div className="flex items-center md:justify-start justify-end w-full md:pb-8">
+            <Button onClick={withdrawFunds}>Withdraw Funds</Button>
+          </div>
+        </div>
+        <div className="hidden md:flex bg-white border rounded-base shadow-light">
+          <Image src={"/svgs/main.svg"} width={1080} height={1080} />
         </div>
       </div>
     </div>

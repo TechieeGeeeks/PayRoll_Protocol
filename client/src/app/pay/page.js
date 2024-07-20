@@ -207,12 +207,12 @@ const Pay = ({ smartContractAccountAddress, signer, smartAccount }) => {
       />
       <div className="space-y-8 mt-4">
         <div className="">
-          <p className="font-semibold text-xl">Pay for salary.</p>
+          <p className="font-semibold text-xl w-full flex md:hidden md:text-3xl md:mt-12 md:mb-8">Distribution per address.</p>
         </div>
-        <div className="grid grid-cols-2 mt-6 gap-8">
+        <div className="grid grid-cols-2 mt-6 gap-8 md:pt-10">
           {formFields.map(({ id, label }, index) => (
             <div key={id} className={`grid gap-2 md:grid-cols-2 items-center`}>
-              <Label htmlFor={id}>{label}</Label>
+              <Label htmlFor={id} className='md:text-lg md:font-semibold'>{label}</Label>
               <Input
                 type={`${
                   id === "locktime" || id === "dilute" ? "date" : "text"
