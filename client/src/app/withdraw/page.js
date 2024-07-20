@@ -90,12 +90,11 @@ const Withdraw = ({ smartContractAccountAddress, signer, smartAccount }) => {
             <p>You&apos;ve some secret withdrawals.</p>
 
             <div className="hidden md:flex w-full mt-8">
-              Securely deposit funds into the Payroll Protocol system. Using our
-              advanced blockchain technology, all transactions are encrypted and
-              stored immutably, ensuring both security and transparency. Simply
-              enter the total salary amount and the encrypted addresses of your
-              employees, and our platform will handle the rest, ensuring timely
-              and private salary disbursements.
+              Easily withdraw your funds with Payroll Protocol. Our secure
+              blockchain-based system ensures that all transactions are
+              encrypted and transparent. Enter the details of the withdrawal,
+              and our platform will process it swiftly, maintaining privacy and
+              security throughout the transaction.
             </div>
           </div>
 
