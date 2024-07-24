@@ -1,10 +1,10 @@
 ### ⚠️ **Important Note**
 
-**🚨 As the deployment of the HyperLane bridge is done on the cloud Kurtosis free plan, the cross-chain calls won't work after 2nd july 11.30 pm. Please refer to the demo video for more information. 🚨**
+**🚨 As the deployment of the HyperLane bridge is done on the cloud Kurtosis free plan, the cross-chain calls won't work after 24th july 11.30 pm. Please refer to the demo video for more information. 🚨**
 
 # [Payroll Protocol](https://t.me/payrollprotocolbot)
 
-**Payroll Protocol** is a confidential money distribution platform built on top of BASE, designed to provide confidentiality during the distribution of funds on-chain. By leveraging FHE cryptography and smart contracts, Payroll Protocol ensures the **confidentiality**, security, and efficiency of money distribution.
+**Payroll Protocol** is a confidential money distribution platform built on top of BASE or Polygon , designed to provide confidentiality during the distribution of funds on-chain. By leveraging FHE cryptography and smart contracts, Payroll Protocol ensures the **confidentiality**, security, and efficiency of money distribution.
 
 ## Video Demo - https://www.youtube.com/watch?v=Na9AG3bECS0&feature=youtu.be
 
@@ -13,9 +13,9 @@
 
 ## Overview
 
-Payroll Protocol integrates **BICONOMY AA SDK, BASE, and INCO FHEVM** to enhance user experience while confidentially distributing money.
+Payroll Protocol integrates **BICONOMY AA SDK, BASE or Polygon and INCO FHEVM** to enhance user experience while confidentially distributing money.
 
-INCO FHEVM provides hidden states to store encrypted addresses that hold encrypted amounts on the INCO network, ensuring that all **transactions are secure and confidential**. This integration guarantees that money distribution details and recipient information remain confidential. It uses **modified Hyperlane infrastructure** to bridge these state values from BASE to INCO and vice versa.
+INCO FHEVM provides hidden states to store encrypted addresses that hold encrypted amounts on the INCO network, ensuring that all **transactions are secure and confidential**. This integration guarantees that money distribution details and recipient information remain confidential. It uses **modified Hyperlane infrastructure** to bridge these state values from BASE or Polygon to INCO and vice versa.
 
 ## Key Features
 
@@ -29,7 +29,7 @@ INCO FHEVM provides hidden states to store encrypted addresses that hold encrypt
 - **Frontend:** Next.js, Tailwind CSS
 - **Authentication & Wallets:** Privy
 - **Backend & Smart Contracts:** Node.js, Solidity
-- **Blockchain:** BASE, INCO FHEVM
+- **Blockchain:** BASE, Polygon ZkEvm, INCO FHEVM
 - **Account Abstraction & Gasless Transactions:** Biconomy
 - **Encryption:** FHE schemes
 
@@ -78,5 +78,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Biconomy](https://www.biconomy.io/)
 - [BASE](https://base.org/)
+- [Polygon](https://polygon.technology/polygon-zkevm)
 - [INCO FHEVM](https://inco.org/)
 
